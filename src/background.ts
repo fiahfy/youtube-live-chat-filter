@@ -1,8 +1,8 @@
 import { browser } from 'webextension-polyfill-ts'
 import { readyStore } from '~/store'
-import code from '~/constants/stylesheet'
 import icon from '~/assets/icon.png'
 import iconOn from '~/assets/icon-on.png'
+import inject from '~/assets/inject.css'
 
 interface TabState {
   enabled: boolean
@@ -27,7 +27,7 @@ const initTab = async (tabId: number, frameId: number) => {
 
   await setIcon(tabId)
   await browser.pageAction.show(tabId)
-  await browser.tabs.insertCSS(tabId, { frameId, code })
+  await browser.tabs.insertCSS(tabId, { frameId, file: inject })
 
   const settings = await getSettings()
 

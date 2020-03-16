@@ -16,7 +16,7 @@
   ],
   "page_action": {
     "default_icon": "assets/icon.png",
-    "default_popup": "assets/popup.html"
+    "default_popup": "popup.html"
   },
   "permissions": [
     "storage",

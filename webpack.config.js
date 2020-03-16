@@ -15,7 +15,7 @@ module.exports = {
   output: {
     path: `${__dirname}/app/`,
     filename: '[name].js',
-    publicPath: '../'
+    publicPath: './'
   },
   module: {
     rules: [
@@ -44,7 +44,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.(jpg|gif|png|woff|woff2|eot|ttf)$/,
+        test: /\.(css|jpg|gif|png|woff|woff2|eot|ttf)$/,
         loader: 'file-loader',
         options: {
           name: 'assets/[name].[ext]'
@@ -73,8 +73,8 @@ module.exports = {
       }
     ]),
     new HtmlWebpackPlugin({
-      template: './assets/popup.html',
-      filename: './assets/popup.html',
+      template: './popup.html',
+      filename: './popup.html',
       chunks: ['popup']
     }),
     new VueLoaderPlugin(),

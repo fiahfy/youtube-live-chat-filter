@@ -1,5 +1,4 @@
 import { browser } from 'webextension-polyfill-ts'
-import className from '~/constants/class-name'
 import error from '~/assets/error.svg'
 import filterList from '~/assets/filter-list.svg'
 import Settings from '~/models/settings'
@@ -9,14 +8,14 @@ let enabled = false
 let settings: Settings | undefined
 
 const updateMenuButton = () => {
-  const button = document.querySelector(`.${className.menuButton}`)
+  const button = document.querySelector('.ylcf-menu-button')
   if (!button) {
     return
   }
   if (enabled) {
-    button.classList.add(className.menuButtonActive)
+    button.classList.add('ylcf-active')
   } else {
-    button.classList.remove(className.menuButtonActive)
+    button.classList.remove('ylcf-active')
   }
 }
 
@@ -35,7 +34,7 @@ const addMenuButton = () => {
   const iconButton = document.createElement('yt-icon-button')
   iconButton.id = 'overflow'
   iconButton.classList.add(
-    className.menuButton,
+    'ylcf-menu-button',
     'style-scope',
     'yt-live-chat-header-renderer'
   )
@@ -111,27 +110,39 @@ const filter = (element: HTMLElement) => {
     return
   }
 
-  const infoIcon = element.querySelector(`.${className.infoIcon}`)
-  infoIcon && infoIcon.remove()
+  if (element.tagName.toLowerCase() !== 'yt-live-chat-text-message-renderer') {
+    return
+  }
 
   const author = element.querySelector('#author-name')?.textContent ?? undefined
   const message = element.querySelector('#message')?.textContent ?? undefined
 
+  element.classList.remove('ylcf-invisible')
+  const infoIcon = element.querySelector('.ylcf-info-icon')
+  infoIcon && infoIcon.remove()
+  const infoDescription = element.querySelector('.ylcf-info-description')
+  infoDescription && infoDescription.remove()
+
   const reason = getReason(author, message)
-  if (reason) {
-    const div = document.createElement('div')
-    div.classList.add(className.infoIcon)
-    div.style.marginTop = '4px'
-    div.style.marginRight = '8px'
-    div.style.cursor = 'pointer'
-    div.title = reason
-    div.innerHTML = error
-    const svg = div.querySelector('svg') as SVGElement
-    svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
-    svg.style.width = '16px'
-    element.prepend(div)
+  if (!reason) {
     return
   }
+
+  element.classList.add('ylcf-invisible')
+
+  const description = document.createElement('div')
+  description.classList.add('ylcf-info-description')
+  description.textContent = '[message filtered]'
+  element.prepend(description)
+
+  const div = document.createElement('div')
+  div.classList.add('ylcf-info-icon')
+  div.title = reason
+  div.innerHTML = error
+  const svg = div.querySelector('svg') as SVGElement
+  svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
+  svg.style.width = '16px'
+  element.prepend(div)
 }
 
 const observe = async () => {
