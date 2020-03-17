@@ -33,8 +33,7 @@ const settingsChanged = async () => {
 }
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
-  const { id, data } = message
-  console.log(id, data)
+  const { id } = message
   const { tab, frameId } = sender
   switch (id) {
     case 'contentLoaded':

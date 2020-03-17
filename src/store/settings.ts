@@ -1,10 +1,12 @@
 import nanoid from 'nanoid'
 import { Module, VuexModule, Mutation } from 'vuex-module-decorators'
 import Rule from '~/models/rule'
+import { FilterAction } from '~/models/settings'
 
 @Module({ name: 'settings' })
 export default class SettingsModule extends VuexModule {
   rules: Rule[] = []
+  filterAction: FilterAction = 'mask_message'
 
   get getRule() {
     return ({ id }: { id: string }) => {
@@ -42,5 +44,9 @@ export default class SettingsModule extends VuexModule {
         ...params
       }
     })
+  }
+  @Mutation
+  setFilterAction({ filterAction }: { filterAction: FilterAction }) {
+    this.filterAction = filterAction
   }
 }

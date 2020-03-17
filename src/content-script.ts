@@ -3,7 +3,7 @@ import error from '~/assets/error.svg'
 import Settings from '~/models/settings'
 import Rule from '~/models/rule'
 
-let settings: Settings | undefined
+let settings: Settings
 
 const querySelectorAsync = (
   selector: string,
@@ -23,7 +23,7 @@ const querySelectorAsync = (
 }
 
 const getReason = (author?: string, message?: string) => {
-  return settings?.rules.reduce((carry: string, rule: Rule) => {
+  return settings.rules.reduce((carry: string, rule: Rule) => {
     if (carry) {
       return carry
     }
@@ -35,9 +35,10 @@ const getReason = (author?: string, message?: string) => {
 
     let reg
     try {
-      const pattern = condition === 'matches_regular_expression'
-        ? value
-        : value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const pattern =
+        condition === 'matches_regular_expression'
+          ? value
+          : value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 
       reg = new RegExp(`(${pattern})`, 'i')
     } catch (e) {
@@ -59,35 +60,41 @@ const filter = (element: HTMLElement) => {
   }
 
   const author = element.querySelector('#author-name')?.textContent ?? undefined
-  const message = element.querySelector('#message')?.textContent ?? undefined
+  const htmlMessage = element.querySelector('#message')?.innerHTML ?? undefined
+  const message = htmlMessage?.replace(/<img [^>]*alt="([^"]+)" [^>]*>/g, (_match, p1) => p1).replace(/<[^>]*>/g, '')
 
-  // reset
-  element.classList.remove('ylcf-invisible')
-  const infoIcon = element.querySelector('.ylcf-info-icon')
-  infoIcon && infoIcon.remove()
-  const infoDescription = element.querySelector('.ylcf-info-description')
-  infoDescription && infoDescription.remove()
+  // remove an existing icon
+  element.removeAttribute('is-deleted')
+  const deletedState = element.querySelector('#deleted-state')
+  if (deletedState) {
+    deletedState.textContent = ''
+  }
+  const errorIcon = element.querySelector('.ylcf-error-icon')
+  errorIcon && errorIcon.remove()
 
   const reason = getReason(author, message)
   if (!reason) {
     return
   }
 
-  element.classList.add('ylcf-invisible')
+  element.setAttribute('is-deleted', '')
 
-  const description = document.createElement('div')
-  description.classList.add('ylcf-info-description')
-  description.textContent = '[message filtered]'
-  element.prepend(description)
-
-  const div = document.createElement('div')
-  div.classList.add('ylcf-info-icon')
-  div.title = reason
-  div.innerHTML = error
-  const svg = div.querySelector('svg') as SVGElement
-  svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
-  svg.style.width = '16px'
-  element.prepend(div)
+  if (settings.filterAction === 'hide_completely') {
+    element.style.display = 'none'
+  } else {
+    const deletedState = element.querySelector('#deleted-state')
+    if (deletedState) {
+      deletedState.textContent = '[message masked]'
+    }
+    const div = document.createElement('div')
+    div.classList.add('ylcf-error-icon')
+    div.title = reason
+    div.innerHTML = error
+    const svg = div.querySelector('svg') as SVGElement
+    svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
+    svg.style.width = '16px'
+    element.prepend(div)
+  }
 }
 
 const observe = async () => {
