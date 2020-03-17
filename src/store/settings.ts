@@ -1,39 +1,39 @@
 import nanoid from 'nanoid'
 import { Module, VuexModule, Mutation } from 'vuex-module-decorators'
-import Filter from '~/models/filter'
+import Rule from '~/models/rule'
 
 @Module({ name: 'settings' })
 export default class SettingsModule extends VuexModule {
-  filters: Filter[] = []
+  rules: Rule[] = []
 
-  get getFilter() {
+  get getRule() {
     return ({ id }: { id: string }) => {
-      return this.filters.find((filter) => filter.id === id)
+      return this.rules.find((rule) => rule.id === id)
     }
   }
 
   @Mutation
-  addFilter(params: Partial<Filter>) {
+  addRule(params: Partial<Rule>) {
     const id = nanoid()
 
-    this.filters = [
-      ...this.filters,
+    this.rules = [
+      ...this.rules,
       {
-        subject: '',
-        keyword: '',
-        regExp: false,
+        field: 'message',
+        condition: 'contains',
+        value: '',
         ...params,
         id
       }
     ]
   }
   @Mutation
-  removeFilter({ id }: { id: string }) {
-    this.filters = this.filters.filter((item) => item.id !== id)
+  removeRule({ id }: { id: string }) {
+    this.rules = this.rules.filter((item) => item.id !== id)
   }
   @Mutation
-  setFilter({ id, ...params }: Partial<Filter>) {
-    this.filters = this.filters.map((item) => {
+  setRule({ id, ...params }: Partial<Rule>) {
+    this.rules = this.rules.map((item) => {
       if (item.id !== id) {
         return item
       }

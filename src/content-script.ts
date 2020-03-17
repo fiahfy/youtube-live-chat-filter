@@ -1,56 +1,9 @@
 import { browser } from 'webextension-polyfill-ts'
 import error from '~/assets/error.svg'
-import filterList from '~/assets/filter-list.svg'
 import Settings from '~/models/settings'
-import Filter from '~/models/filter'
+import Rule from '~/models/rule'
 
-let enabled = false
 let settings: Settings | undefined
-
-const updateMenuButton = () => {
-  const button = document.querySelector('.ylcf-menu-button')
-  if (!button) {
-    return
-  }
-  if (enabled) {
-    button.classList.add('ylcf-active')
-  } else {
-    button.classList.remove('ylcf-active')
-  }
-}
-
-const addMenuButton = () => {
-  const header = document.querySelector(
-    '#chat-messages > yt-live-chat-header-renderer'
-  )
-  const refIconButton = header && header.querySelector('yt-icon-button')
-  if (!header || !refIconButton) {
-    return
-  }
-
-  const icon = document.createElement('yt-icon')
-  icon.classList.add('yt-live-chat-header-renderer', 'style-scope')
-
-  const iconButton = document.createElement('yt-icon-button')
-  iconButton.id = 'overflow'
-  iconButton.classList.add(
-    'ylcf-menu-button',
-    'style-scope',
-    'yt-live-chat-header-renderer'
-  )
-  iconButton.title = 'Filter messages'
-  iconButton.onclick = () => {
-    browser.runtime.sendMessage({ id: 'menuButtonClicked' })
-  }
-  iconButton.append(icon)
-
-  header.insertBefore(iconButton, refIconButton)
-
-  // insert svg after wrapper button appended
-  icon.innerHTML = filterList
-
-  updateMenuButton()
-}
 
 const querySelectorAsync = (
   selector: string,
@@ -70,46 +23,37 @@ const querySelectorAsync = (
 }
 
 const getReason = (author?: string, message?: string) => {
-  return settings?.filters.reduce((carry: string, filter: Filter) => {
+  return settings?.rules.reduce((carry: string, rule: Rule) => {
     if (carry) {
       return carry
     }
 
-    const { subject, keyword, regExp } = filter
-    if (!subject || !keyword) {
+    const { field, condition, value } = rule
+    if (!field || !value) {
       return carry
     }
 
     let reg
     try {
-      const pattern = regExp
-        ? keyword
-        : keyword.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const pattern = condition === 'matches_regular_expression'
+        ? value
+        : value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 
       reg = new RegExp(`(${pattern})`, 'i')
     } catch (e) {
       return carry
     }
 
-    const text = subject === 'author' ? author : message
+    const text = field === 'author' ? author : message
     if (!text || !reg.test(text)) {
       return carry
     }
 
-    let reason = `Match keyword "${keyword}" in ${subject}`
-    if (regExp) {
-      reason += ' with regexp'
-    }
-
-    return reason
+    return `${field} ${condition.replace(/_/, ' ')} "${value}"`
   }, '')
 }
 
 const filter = (element: HTMLElement) => {
-  if (!enabled) {
-    return
-  }
-
   if (element.tagName.toLowerCase() !== 'yt-live-chat-text-message-renderer') {
     return
   }
@@ -117,6 +61,7 @@ const filter = (element: HTMLElement) => {
   const author = element.querySelector('#author-name')?.textContent ?? undefined
   const message = element.querySelector('#message')?.textContent ?? undefined
 
+  // reset
   element.classList.remove('ylcf-invisible')
   const infoIcon = element.querySelector('.ylcf-info-icon')
   infoIcon && infoIcon.remove()
@@ -170,10 +115,6 @@ const observe = async () => {
 browser.runtime.onMessage.addListener((message) => {
   const { id, data } = message
   switch (id) {
-    case 'enabledChanged':
-      enabled = data.enabled
-      updateMenuButton()
-      break
     case 'settingsChanged':
       settings = data.settings
       break
@@ -182,8 +123,6 @@ browser.runtime.onMessage.addListener((message) => {
 
 document.addEventListener('DOMContentLoaded', async () => {
   const data = await browser.runtime.sendMessage({ id: 'contentLoaded' })
-  enabled = data.enabled
   settings = data.settings
-  addMenuButton()
   observe()
 })

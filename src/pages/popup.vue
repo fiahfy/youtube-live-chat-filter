@@ -3,7 +3,7 @@
     <v-content class="fill-height">
       <v-container class="pa-0" fluid fill-height>
         <v-card flat class="fill-height flex-grow-1">
-          <v-tabs v-model="tabIndex" fixed-tabs class="fill-height">
+          <v-tabs v-model="tabIndex" grow class="fill-height">
             <v-tab v-for="(tab, index) in tabs" :key="index">
               {{ tab.title }}
             </v-tab>
@@ -19,14 +19,13 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import FilterTabItem from '~/components/FilterTabItem.vue'
+import RuleTabItem from '~/components/RuleTabItem.vue'
 
 @Component
 export default class Popup extends Vue {
   tabIndex = 0
   tabs = [
-    { title: 'General', item: FilterTabItem },
-    { title: 'Filters', item: FilterTabItem }
+    { title: 'Rules', item: RuleTabItem }
   ]
 }
 </script>

@@ -1,5 +1,5 @@
-import Filter from '~/models/filter'
+import Rule from '~/models/rule'
 
 export default interface Settings {
-  filters: Filter[]
+  rules: Rule[]
 }

@@ -1,12 +1,12 @@
 <template>
   <v-data-table
     :headers="headers"
-    :items="filters"
+    :items="rules"
     :mobile-breakpoint="0"
     :items-per-page="-1"
     hide-default-footer
   >
-    <filter-table-row
+    <rule-table-row
       slot="item"
       :key="props.item.id"
       slot-scope="props"
@@ -18,23 +18,23 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { settingsStore } from '~/store'
-import FilterTableRow from '~/components/FilterTableRow.vue'
+import RuleTableRow from '~/components/RuleTableRow.vue'
 
 @Component({
   components: {
-    FilterTableRow
+    RuleTableRow
   }
 })
-export default class FilterTable extends Vue {
+export default class RuleTable extends Vue {
   headers = [
-    { text: 'Subject', value: 'subject' },
-    { text: 'Keyword', value: 'keyword' },
-    { text: 'Regular Expression', value: 'regExp' },
+    { text: 'Field', value: 'field' },
+    { text: 'Condition', value: 'condition' },
+    { text: 'Value', value: 'value' },
     { text: 'Actions', sortable: false }
   ]
 
-  get filters() {
-    return settingsStore.filters
+  get rules() {
+    return settingsStore.rules
   }
 }
 </script>
