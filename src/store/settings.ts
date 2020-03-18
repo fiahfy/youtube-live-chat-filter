@@ -21,6 +21,7 @@ export default class SettingsModule extends VuexModule {
     this.rules = [
       ...this.rules,
       {
+        active: true,
         field: 'message',
         condition: 'contains',
         value: '',

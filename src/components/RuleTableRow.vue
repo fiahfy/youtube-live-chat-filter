@@ -1,9 +1,17 @@
 <template>
   <tr>
-    <td class="text-capitalize" v-text="item.field" />
-    <td class="text-capitalize" v-text="condition" />
-    <td class="value text-truncate" v-text="item.value" />
-    <td>
+    <td class="text-capitalize caption" v-text="item.field" />
+    <td class="text-capitalize caption" v-text="condition" />
+    <td class="value text-truncate caption" v-text="item.value" />
+    <td class="text-center">
+      <v-chip
+        :color="item.active ? 'green' : 'red'"
+        outlined
+        x-small
+        v-text="item.active ? 'active' : 'inactive'"
+      />
+    </td>
+    <td class="text-no-wrap">
       <v-btn class="mr-1" icon @click="onClickEdit">
         <v-icon color="teal">mdi-pencil</v-icon>
       </v-btn>
@@ -34,8 +42,8 @@ export default class RuleTableRow extends Vue {
 
   get condition() {
     return {
-      'contains': 'contains',
-      'matches_regular_expression': 'Matches Regular Expression'
+      contains: 'contains',
+      matches_regular_expression: 'Matches Regular Expression' // eslint-disable-line @typescript-eslint/camelcase
     }[this.item.condition]
   }
 

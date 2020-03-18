@@ -28,8 +28,8 @@ const getReason = (author?: string, message?: string) => {
       return carry
     }
 
-    const { field, condition, value } = rule
-    if (!field || !value) {
+    const { active, field, condition, value } = rule
+    if (!active || !field || !value) {
       return carry
     }
 
@@ -61,7 +61,9 @@ const filter = (element: HTMLElement) => {
 
   const author = element.querySelector('#author-name')?.textContent ?? undefined
   const htmlMessage = element.querySelector('#message')?.innerHTML ?? undefined
-  const message = htmlMessage?.replace(/<img [^>]*alt="([^"]+)" [^>]*>/g, (_match, p1) => p1).replace(/<[^>]*>/g, '')
+  const message = htmlMessage
+    ?.replace(/<img [^>]*alt="([^"]+)" [^>]*>/g, (_match, p1) => p1)
+    .replace(/<[^>]*>/g, '')
 
   // remove an existing icon
   element.removeAttribute('is-deleted')

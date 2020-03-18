@@ -6,39 +6,35 @@
           <span class="title" v-text="title" />
         </v-card-title>
         <v-card-text>
-          <v-row>
-            <v-col cols="12" class="py-0">
-              <v-select
-                v-model="formInputs.field"
-                :items="fields"
-                label="Field"
-                dense
-                class="pt-3"
-              />
-            </v-col>
-            <v-col cols="12" class="py-0">
-              <v-select
-                v-model="formInputs.condition"
-                :items="conditions"
-                label="Condition"
-                dense
-                class="pt-3"
-              />
-            </v-col>
-            <v-col cols="12" class="py-0">
-              <v-text-field
-                v-model="formInputs.value"
-                :rules="valueRules"
-                label="value"
-                placeholder="Text or Pattern"
-                required
-                autofocus
-              />
-            </v-col>
-          </v-row>
+          <v-select
+            v-model="formInputs.field"
+            :items="fields"
+            label="Field"
+            dense
+            class="pt-3"
+          />
+          <v-select
+            v-model="formInputs.condition"
+            :items="conditions"
+            label="Condition"
+            dense
+            class="pt-3"
+          />
+          <v-text-field
+            v-model="formInputs.value"
+            :rules="valueRules"
+            label="value"
+            placeholder="Text or Pattern"
+            required
+            autofocus
+          />
+          <v-switch
+            v-model="formInputs.active"
+            :label="formInputs.active ? 'Active' : 'Inactive'"
+          />
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn text @click.native="onClickClose">Cancel</v-btn>
           <v-btn color="primary" text @click.native="onClickSave">Save</v-btn>
         </v-card-actions>
@@ -76,6 +72,7 @@ export default class RuleDialog extends Vue {
     this.dialog = value
     if (value) {
       this.formInputs = {
+        active: true,
         field: 'message',
         condition: 'contains',
         ...this.inputs
