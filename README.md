@@ -6,7 +6,8 @@
 
 ## Features
 
-- Filter chat messages by banned words.
+- Filter chat messages by text or regular expression.
+- Mask only messages or hide completely
 
 ## Screenshot
 

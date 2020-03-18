@@ -1,34 +1,63 @@
 <template>
   <v-app>
     <v-content class="fill-height">
-      <v-container class="pa-0" fluid fill-height>
-        <v-card flat class="fill-height flex-grow-1">
-          <v-tabs v-model="tabIndex" fixed-tabs class="fill-height">
-            <v-tab v-for="(tab, index) in tabs" :key="index">
-              {{ tab.title }}
-            </v-tab>
-            <v-tab-item v-for="(tab, index) in tabs" :key="index">
-              <component :is="tab.item" />
-            </v-tab-item>
-          </v-tabs>
-        </v-card>
+      <v-container ref="container" fluid pa-0>
+        <v-subheader>General</v-subheader>
+        <v-select
+          v-model="filterAction"
+          :items="filterActions"
+          label="Filter Action"
+          dense
+          class="pt-3 px-4"
+        />
+        <v-subheader>Rules</v-subheader>
+        <rule-table />
       </v-container>
     </v-content>
   </v-app>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-import GeneralTabItem from '~/components/GeneralTabItem.vue'
-import RuleTabItem from '~/components/RuleTabItem.vue'
+import { Vue, Component, Ref, Watch } from 'vue-property-decorator'
+import { settingsStore } from '~/store'
+import Rule from '~/models/rule'
+import RuleTable from '~/components/RuleTable.vue'
 
-@Component
+@Component({
+  components: {
+    RuleTable
+  }
+})
 export default class Popup extends Vue {
-  tabIndex = 0
-  tabs = [
-    { title: 'General', item: GeneralTabItem },
-    { title: 'Rules', item: RuleTabItem }
+  @Ref() readonly container!: HTMLDivElement
+
+  filterActions = [
+    { text: 'Hide completely', value: 'hide_completely' },
+    { text: 'Mask Message', value: 'mask_message' }
   ]
+
+  get filterAction() {
+    return settingsStore.filterAction
+  }
+  set filterAction(value) {
+    settingsStore.setFilterAction({ filterAction: value })
+  }
+
+  get rules() {
+    return settingsStore.rules
+  }
+
+  @Watch('rules')
+  onRulesChanged(value: Rule[], oldValue: Rule[]) {
+    if (oldValue.length && value.length > oldValue.length) {
+      this.$nextTick(() => {
+        const wrapper = this.container.parentElement
+        if (wrapper) {
+          wrapper.scrollTop = wrapper.scrollHeight
+        }
+      })
+    }
+  }
 }
 </script>
 
@@ -48,19 +77,8 @@ html {
 .v-application {
   min-width: 640px;
   height: 600px;
-  .v-tabs {
-    display: flex;
-    flex-direction: column;
-    ::v-deep {
-      > .v-tabs-bar {
-        flex-grow: 0;
-      }
-      > .v-tabs-items {
-        flex-grow: 1;
-        flex-basis: 0;
-        overflow-y: auto;
-      }
-    }
+  .v-content ::v-deep .v-content__wrap {
+    overflow-y: auto;
   }
 }
 </style>

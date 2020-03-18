@@ -6,6 +6,7 @@
     :items-per-page="-1"
     hide-default-footer
   >
+    <rule-table-toolbar slot="top" />
     <rule-table-row
       slot="item"
       :key="props.item.id"
@@ -19,10 +20,12 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { settingsStore } from '~/store'
 import RuleTableRow from '~/components/RuleTableRow.vue'
+import RuleTableToolbar from '~/components/RuleTableToolbar.vue'
 
 @Component({
   components: {
-    RuleTableRow
+    RuleTableRow,
+    RuleTableToolbar
   }
 })
 export default class RuleTable extends Vue {
