@@ -40,7 +40,7 @@ const getReason = (author?: string, message?: string) => {
           ? value
           : value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
 
-      reg = new RegExp(`(${pattern})`, 'i')
+      reg = new RegExp(`(${pattern})`)
     } catch (e) {
       return carry
     }
@@ -65,7 +65,8 @@ const filter = (element: HTMLElement) => {
     ?.replace(/<img [^>]*alt="([^"]+)" [^>]*>/g, (_match, p1) => p1)
     .replace(/<[^>]*>/g, '')
 
-  // remove an existing icon
+  // reset message
+  element.classList.remove('ylcf-deleted-message')
   element.removeAttribute('is-deleted')
   const deletedState = element.querySelector('#deleted-state')
   if (deletedState) {
@@ -79,6 +80,7 @@ const filter = (element: HTMLElement) => {
     return
   }
 
+  element.classList.add('ylcf-deleted-message')
   element.setAttribute('is-deleted', '')
 
   if (settings.filterAction === 'hide_completely') {

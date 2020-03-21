@@ -1,14 +1,14 @@
-yt-live-chat-text-message-renderer .ylcf-error-icon {
+yt-live-chat-text-message-renderer.ylcf-deleted-message .ylcf-error-icon {
   cursor: pointer;
   display: block;
   margin-top: 4px;
   margin-right: 8px;
 }
-yt-live-chat-text-message-renderer:hover #message {
+yt-live-chat-text-message-renderer.ylcf-deleted-message:hover #message {
   display: inline!important;
   color: inherit!important;
   font-style: inherit!important;
 }
-yt-live-chat-text-message-renderer:hover #deleted-state {
+yt-live-chat-text-message-renderer.ylcf-deleted-message:hover #deleted-state {
   display: none!important;
 }

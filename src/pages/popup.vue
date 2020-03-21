@@ -32,8 +32,8 @@ export default class Popup extends Vue {
   @Ref() readonly container!: HTMLDivElement
 
   filterActions = [
-    { text: 'Hide completely', value: 'hide_completely' },
-    { text: 'Mask Message', value: 'mask_message' }
+    { text: 'Mask Message', value: 'mask_message' },
+    { text: 'Hide completely', value: 'hide_completely' }
   ]
 
   get filterAction() {
