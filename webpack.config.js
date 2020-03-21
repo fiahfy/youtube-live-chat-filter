@@ -58,6 +58,7 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin([
+      'icon.png',
       {
         from: 'manifest.json',
         transform: function(content) {
