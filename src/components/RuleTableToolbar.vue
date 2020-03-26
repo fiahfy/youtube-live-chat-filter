@@ -16,15 +16,15 @@ import RuleDialog from '~/components/RuleDialog.vue'
 
 @Component({
   components: {
-    RuleDialog
-  }
+    RuleDialog,
+  },
 })
 export default class RuleTableToolbar extends Vue {
   dialog = false
   form: Partial<Rule> = {
     field: 'message',
     condition: 'contains',
-    value: ''
+    value: '',
   }
 
   @Watch('dialog')

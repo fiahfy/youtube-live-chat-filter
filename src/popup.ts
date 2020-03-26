@@ -6,5 +6,5 @@ new Vue({
   el: '#app',
   components: { Popup },
   template: '<Popup />',
-  vuetify
+  vuetify,
 })

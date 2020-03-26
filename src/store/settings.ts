@@ -26,8 +26,8 @@ export default class SettingsModule extends VuexModule {
         condition: 'contains',
         value: '',
         ...params,
-        id
-      }
+        id,
+      },
     ]
   }
   @Mutation
@@ -42,7 +42,7 @@ export default class SettingsModule extends VuexModule {
       }
       return {
         ...item,
-        ...params
+        ...params,
       }
     })
   }

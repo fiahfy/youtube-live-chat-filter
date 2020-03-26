@@ -56,11 +56,11 @@ export default class RuleDialog extends Vue {
 
   fields = [
     { text: 'Author', value: 'author' },
-    { text: 'Message', value: 'message' }
+    { text: 'Message', value: 'message' },
   ]
   conditions = [
     { text: 'Contains', value: 'contains' },
-    { text: 'Matches Regular Expression', value: 'matches_regular_expression' }
+    { text: 'Matches Regular Expression', value: 'matches_regular_expression' },
   ]
   valueRules = [(v: string) => !!v || 'Value is required']
   valid = false
@@ -75,7 +75,7 @@ export default class RuleDialog extends Vue {
         active: true,
         field: 'message',
         condition: 'contains',
-        ...this.inputs
+        ...this.inputs,
       }
     }
   }

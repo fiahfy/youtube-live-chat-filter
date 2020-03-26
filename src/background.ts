@@ -26,7 +26,7 @@ const settingsChanged = async () => {
       tab.id &&
         (await browser.tabs.sendMessage(tab.id, {
           id: 'settingsChanged',
-          data: { settings }
+          data: { settings },
         }))
     } catch (e) {} // eslint-disable-line no-empty
   }

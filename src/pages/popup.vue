@@ -25,15 +25,15 @@ import RuleTable from '~/components/RuleTable.vue'
 
 @Component({
   components: {
-    RuleTable
-  }
+    RuleTable,
+  },
 })
 export default class Popup extends Vue {
   @Ref() readonly container!: HTMLDivElement
 
   filterActions = [
     { text: 'Mask Message', value: 'mask_message' },
-    { text: 'Hide completely', value: 'hide_completely' }
+    { text: 'Hide completely', value: 'hide_completely' },
   ]
 
   get filterAction() {

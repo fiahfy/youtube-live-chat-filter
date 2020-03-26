@@ -31,8 +31,8 @@ import RuleDialog from '~/components/RuleDialog.vue'
 
 @Component({
   components: {
-    RuleDialog
-  }
+    RuleDialog,
+  },
 })
 export default class RuleTableRow extends Vue {
   @Prop({ type: Object, required: true }) readonly item!: Rule
@@ -43,7 +43,7 @@ export default class RuleTableRow extends Vue {
   get condition() {
     return {
       contains: 'contains',
-      matches_regular_expression: 'Matches Regular Expression' // eslint-disable-line @typescript-eslint/camelcase
+      matches_regular_expression: 'Matches Regular Expression', // eslint-disable-line @typescript-eslint/camelcase
     }[this.item.condition]
   }
 
@@ -52,7 +52,7 @@ export default class RuleTableRow extends Vue {
     if (!value && this.form) {
       settingsStore.setRule({
         ...this.form,
-        id: this.item.id
+        id: this.item.id,
       })
     }
   }

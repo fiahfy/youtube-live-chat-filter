@@ -12,8 +12,8 @@ import RuleTable from '~/components/RuleTable.vue'
 
 @Component({
   components: {
-    RuleTable
-  }
+    RuleTable,
+  },
 })
 export default class RuleTabItem extends Vue {
   get rules() {

@@ -25,8 +25,8 @@ import RuleTableToolbar from '~/components/RuleTableToolbar.vue'
 @Component({
   components: {
     RuleTableRow,
-    RuleTableToolbar
-  }
+    RuleTableToolbar,
+  },
 })
 export default class RuleTable extends Vue {
   headers = [
@@ -34,7 +34,7 @@ export default class RuleTable extends Vue {
     { text: 'Condition', value: 'condition' },
     { text: 'Value', value: 'value' },
     { text: 'Status', value: 'active' },
-    { text: 'Actions', sortable: false }
+    { text: 'Actions', sortable: false },
   ]
 
   get rules() {
