@@ -50,7 +50,7 @@ const getReason = (author?: string, message?: string) => {
       return carry
     }
 
-    return `${field} ${condition.replace(/_/, ' ')} "${value}"`
+    return `${field} ${condition.replace(/_/g, ' ')} "${value}"`
   }, '')
 }
 
