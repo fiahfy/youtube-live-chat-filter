@@ -1,8 +1,15 @@
 import { browser } from 'webextension-polyfill-ts'
 import error from '~/assets/error.svg'
+import filterList from '~/assets/filter-list.svg'
 import Settings from '~/models/settings'
 import Rule from '~/models/rule'
 
+const ClassName = {
+  menuButton: 'ylcf-filter-menu-button',
+  activeMenuButton: 'ylcf-active-filter-menu-button',
+}
+
+let enabled: boolean
 let settings: Settings
 
 const querySelectorAsync = (
@@ -20,6 +27,51 @@ const querySelectorAsync = (
       }
     }, interval)
   })
+}
+
+const updateMenuButton = () => {
+  const button = document.querySelector(`.${ClassName.menuButton}`)
+  if (!button) {
+    return
+  }
+  if (enabled) {
+    button.classList.add(ClassName.activeMenuButton)
+  } else {
+    button.classList.remove(ClassName.activeMenuButton)
+  }
+}
+
+const addMenuButton = () => {
+  const header = document.querySelector(
+    '#chat-messages > yt-live-chat-header-renderer'
+  )
+  const refIconButton = header && header.querySelector('yt-icon-button')
+  if (!header || !refIconButton) {
+    return
+  }
+
+  const icon = document.createElement('yt-icon')
+  icon.classList.add('yt-live-chat-header-renderer', 'style-scope')
+
+  const iconButton = document.createElement('yt-icon-button')
+  iconButton.id = 'overflow'
+  iconButton.classList.add(
+    ClassName.menuButton,
+    'style-scope',
+    'yt-live-chat-header-renderer'
+  )
+  iconButton.title = 'Filter Messages'
+  iconButton.onclick = () => {
+    browser.runtime.sendMessage({ id: 'menuButtonClicked' })
+  }
+  iconButton.append(icon)
+
+  header.insertBefore(iconButton, refIconButton)
+
+  // insert svg after wrapper button appended
+  icon.innerHTML = filterList
+
+  updateMenuButton()
 }
 
 const getReason = (author?: string, message?: string) => {
@@ -55,6 +107,10 @@ const getReason = (author?: string, message?: string) => {
 }
 
 const filter = (element: HTMLElement) => {
+  if (!enabled) {
+    return
+  }
+
   if (element.tagName.toLowerCase() !== 'yt-live-chat-text-message-renderer') {
     return
   }
@@ -126,6 +182,10 @@ const observe = async () => {
 browser.runtime.onMessage.addListener((message) => {
   const { id, data } = message
   switch (id) {
+    case 'enabledChanged':
+      enabled = data.tabState.enabled
+      updateMenuButton()
+      break
     case 'settingsChanged':
       settings = data.settings
       break
@@ -134,6 +194,8 @@ browser.runtime.onMessage.addListener((message) => {
 
 document.addEventListener('DOMContentLoaded', async () => {
   const data = await browser.runtime.sendMessage({ id: 'contentLoaded' })
+  enabled = data.tabState.enabled
   settings = data.settings
   observe()
+  addMenuButton()
 })
