@@ -1,4 +1,4 @@
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import { Module, VuexModule, Mutation } from 'vuex-module-decorators'
 import Rule from '~/models/rule'
 import { FilterAction } from '~/models/settings'
