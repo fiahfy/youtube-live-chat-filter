@@ -1,55 +1,48 @@
 import { browser } from 'webextension-polyfill-ts'
 import { readyStore } from '~/store'
-import icon from '~/assets/icon.png'
+import iconOff from '~/assets/icon-off.png'
 import iconOn from '~/assets/icon-on.png'
 import inject from '~/assets/inject.css'
 
-interface TabState {
-  enabled: boolean
-}
-
-let initialState = { enabled: true }
-let tabStates: { [tabId: number]: TabState } = {}
+let initialEnabled = true
+let enabledStates: { [tabId: number]: boolean } = {}
 
 const getSettings = async () => {
   const store = await readyStore()
   return JSON.parse(JSON.stringify(store.state.settings))
 }
 
-const setIcon = async (tabId: number, tabState: TabState) => {
-  const path = tabState.enabled ? iconOn : icon
+const setIcon = async (tabId: number, enabled: boolean) => {
+  const path = enabled ? iconOn : iconOff
   await browser.pageAction.setIcon({ tabId, path })
 }
 
 const contentLoaded = async (tabId: number, frameId: number) => {
-  const tabState = tabStates[tabId] ?? { ...initialState }
-  tabStates = { ...tabStates, [tabId]: tabState }
+  const enabled = enabledStates[tabId] ?? initialEnabled
+  enabledStates = { ...enabledStates, [tabId]: enabled }
 
-  await setIcon(tabId, tabState)
+  await setIcon(tabId, enabled)
   await browser.pageAction.show(tabId)
   await browser.tabs.insertCSS(tabId, { frameId, file: inject })
 
   const settings = await getSettings()
 
-  return { tabState, settings }
+  return { enabled, settings }
 }
 
 const menuButtonClicked = async (tabId: number) => {
-  let tabState = tabStates[tabId] ?? { ...initialState }
-  tabState = {
-    ...tabState,
-    enabled: !tabState.enabled,
-  }
+  let enabled = enabledStates[tabId] ?? initialEnabled
+  enabled = !enabled
 
-  initialState = { ...tabState }
+  initialEnabled = enabled
 
-  tabStates = { ...tabStates, [tabId]: tabState }
+  enabledStates = { ...enabledStates, [tabId]: enabled }
 
-  await setIcon(tabId, tabState)
+  await setIcon(tabId, enabled)
 
   await browser.tabs.sendMessage(tabId, {
     id: 'enabledChanged',
-    data: { tabState },
+    data: { enabled },
   })
 }
 
