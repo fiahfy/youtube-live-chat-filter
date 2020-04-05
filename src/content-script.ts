@@ -196,6 +196,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const data = await browser.runtime.sendMessage({ id: 'contentLoaded' })
   enabled = data.enabled
   settings = data.settings
-  observe()
   addMenuButton()
+  await observe()
 })
