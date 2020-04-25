@@ -74,8 +74,8 @@ const addMenuButton = () => {
   updateMenuButton()
 }
 
-const getReason = (author?: string, message?: string) => {
-  return settings.rules.reduce((carry: string, rule: Rule) => {
+const getMatchedRule = (author?: string, message?: string) => {
+  return settings.rules.reduce((carry: Rule | undefined, rule: Rule) => {
     if (carry) {
       return carry
     }
@@ -102,8 +102,12 @@ const getReason = (author?: string, message?: string) => {
       return carry
     }
 
-    return `${field} ${condition.replace(/_/g, ' ')} "${value}"`
-  }, '')
+    return rule
+  }, undefined)
+}
+
+const getReason = (rule: Rule) => {
+  return `${rule.field} ${rule.condition.replace(/_/g, ' ')} "${rule.value}"`
 }
 
 const filter = (element: HTMLElement) => {
@@ -131,15 +135,15 @@ const filter = (element: HTMLElement) => {
   const errorIcon = element.querySelector('.ylcf-error-icon')
   errorIcon && errorIcon.remove()
 
-  const reason = getReason(author, message)
-  if (!reason) {
+  const rule = getMatchedRule(author, message)
+  if (!rule) {
     return
   }
 
   element.classList.add('ylcf-deleted-message')
   element.setAttribute('is-deleted', '')
 
-  if (settings.filterAction === 'hide_completely') {
+  if (rule.action === 'hide_completely') {
     element.style.display = 'none'
   } else {
     const deletedState = element.querySelector('#deleted-state')
@@ -148,7 +152,7 @@ const filter = (element: HTMLElement) => {
     }
     const div = document.createElement('div')
     div.classList.add('ylcf-error-icon')
-    div.title = reason
+    div.title = getReason(rule)
     div.innerHTML = error
     const svg = div.querySelector('svg') as SVGElement
     svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'

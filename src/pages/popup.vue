@@ -1,16 +1,7 @@
 <template>
   <v-app>
     <v-content class="fill-height">
-      <v-container ref="container" fluid pa-0>
-        <v-subheader>General</v-subheader>
-        <v-select
-          v-model="filterAction"
-          :items="filterActions"
-          label="Filter Action"
-          dense
-          class="pt-3 px-4"
-        />
-        <v-subheader>Rules</v-subheader>
+      <v-container ref="container" fluid px-0>
         <rule-table />
       </v-container>
     </v-content>
@@ -30,18 +21,6 @@ import RuleTable from '~/components/RuleTable.vue'
 })
 export default class Popup extends Vue {
   @Ref() readonly container!: HTMLDivElement
-
-  filterActions = [
-    { text: 'Mask Message', value: 'mask_message' },
-    { text: 'Hide completely', value: 'hide_completely' },
-  ]
-
-  get filterAction() {
-    return settingsStore.filterAction
-  }
-  set filterAction(value) {
-    settingsStore.setFilterAction({ filterAction: value })
-  }
 
   get rules() {
     return settingsStore.rules

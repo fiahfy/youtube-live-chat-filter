@@ -33,8 +33,9 @@ export default class RuleTable extends Vue {
     { text: 'Field', value: 'field' },
     { text: 'Condition', value: 'condition' },
     { text: 'Value', value: 'value' },
+    { text: 'Action', value: 'action' },
     { text: 'Status', value: 'active' },
-    { text: 'Actions', sortable: false },
+    { sortable: false },
   ]
 
   get rules() {

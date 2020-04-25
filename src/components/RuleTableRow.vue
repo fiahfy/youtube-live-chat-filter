@@ -1,8 +1,9 @@
 <template>
   <tr>
-    <td class="text-capitalize caption" v-text="item.field" />
-    <td class="text-capitalize caption" v-text="condition" />
-    <td class="value text-truncate caption" v-text="item.value" />
+    <td class="caption text-capitalize" v-text="item.field" />
+    <td class="caption text-capitalize text-no-wrap" v-text="condition" />
+    <td class="caption text-truncate value" v-text="item.value" />
+    <td class="caption text-capitalize text-no-wrap" v-text="action" />
     <td class="text-center">
       <v-chip
         :color="item.active ? 'green' : 'red'"
@@ -42,9 +43,16 @@ export default class RuleTableRow extends Vue {
 
   get condition() {
     return {
-      contains: 'contains',
+      contains: 'Contains',
       matches_regular_expression: 'Matches Regular Expression', // eslint-disable-line @typescript-eslint/camelcase
     }[this.item.condition]
+  }
+
+  get action() {
+    return {
+      mask_message: 'Mask Message', // eslint-disable-line @typescript-eslint/camelcase
+      hide_completely: 'Hide Completely', // eslint-disable-line @typescript-eslint/camelcase
+    }[this.item.action]
   }
 
   @Watch('dialog')
@@ -70,5 +78,6 @@ export default class RuleTableRow extends Vue {
 <style lang="scss" scoped>
 .value {
   max-width: 200px;
+  min-width: 96px;
 }
 </style>

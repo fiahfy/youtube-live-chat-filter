@@ -23,10 +23,17 @@
           <v-text-field
             v-model="formInputs.value"
             :rules="valueRules"
-            label="value"
-            placeholder="Text or Pattern"
+            label="Value"
+            :placeholder="placeholder"
             required
             autofocus
+          />
+          <v-select
+            v-model="formInputs.action"
+            :items="actions"
+            label="Action"
+            dense
+            class="pt-3"
           />
           <v-switch
             v-model="formInputs.active"
@@ -46,6 +53,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Ref } from 'vue-property-decorator'
 import { VForm } from 'vuetify/lib'
+import Rule from '~/models/rule'
 
 @Component
 export default class RuleDialog extends Vue {
@@ -62,10 +70,18 @@ export default class RuleDialog extends Vue {
     { text: 'Contains', value: 'contains' },
     { text: 'Matches Regular Expression', value: 'matches_regular_expression' },
   ]
+  actions = [
+    { text: 'Mask Message', value: 'mask_message' },
+    { text: 'Hide completely', value: 'hide_completely' },
+  ]
   valueRules = [(v: string) => !!v || 'Value is required']
   valid = false
   dialog = false
-  formInputs = {}
+  formInputs: Partial<Rule> = {}
+
+  get placeholder() {
+    return this.formInputs.condition === 'contains' ? 'Text' : 'Pattern'
+  }
 
   @Watch('value')
   onValueChanged(value: boolean) {
@@ -75,6 +91,7 @@ export default class RuleDialog extends Vue {
         active: true,
         field: 'message',
         condition: 'contains',
+        action: 'mask_message',
         ...this.inputs,
       }
     }
