@@ -72,7 +72,7 @@ export default class RuleDialog extends Vue {
   ]
   actions = [
     { text: 'Mask Message', value: 'mask_message' },
-    { text: 'Hide completely', value: 'hide_completely' },
+    { text: 'Hide Completely', value: 'hide_completely' },
   ]
   valueRules = [(v: string) => !!v || 'Value is required']
   valid = false
