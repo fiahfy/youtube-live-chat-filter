@@ -3,6 +3,7 @@
     <v-content class="fill-height">
       <v-container ref="container" fluid px-0>
         <rule-table />
+        <div v-if="expander" class="expander" />
       </v-container>
     </v-content>
   </v-app>
@@ -22,6 +23,8 @@ import RuleTable from '~/components/RuleTable.vue'
 export default class Popup extends Vue {
   @Ref() readonly container!: HTMLDivElement
 
+  expander = true
+
   get rules() {
     return settingsStore.rules
   }
@@ -37,27 +40,26 @@ export default class Popup extends Vue {
       })
     }
   }
+
+  mounted() {
+    setTimeout(() => {
+      this.expander = false
+    })
+  }
 }
 </script>
 
 <style lang="scss">
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 html {
-  overflow-y: hidden;
+  overflow-y: auto;
 }
 </style>
 
 <style lang="scss" scoped>
 .v-application {
-  min-width: 640px;
-  height: 600px;
-  .v-content ::v-deep .v-content__wrap {
-    overflow-y: auto;
+  width: 640px;
+  .expander {
+    height: 600px;
   }
 }
 </style>
