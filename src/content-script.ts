@@ -5,8 +5,12 @@ import Settings from '~/models/settings'
 import Rule from '~/models/rule'
 
 const ClassName = {
-  menuButton: 'ylcf-filter-menu-button',
-  activeMenuButton: 'ylcf-active-filter-menu-button',
+  active: 'ylcfr-active',
+  menuButton: 'ylcfr-menu-button',
+  activeMenuButton: 'ylcfr-active-menu-button',
+  errorIcon: 'ylcfr-error-icon',
+  filteredMessage: 'ylcfr-filtered-message',
+  deletedMessage: 'ylcfr-deleted-message',
 }
 
 let enabled: boolean
@@ -27,6 +31,14 @@ const querySelectorAsync = (
       }
     }, interval)
   })
+}
+
+const updateRoot = () => {
+  if (enabled) {
+    document.documentElement.classList.add(ClassName.active)
+  } else {
+    document.documentElement.classList.remove(ClassName.active)
+  }
 }
 
 const updateMenuButton = () => {
@@ -126,21 +138,22 @@ const filter = (element: HTMLElement) => {
     .replace(/<[^>]*>/g, '')
 
   // reset message
-  element.classList.remove('ylcf-deleted-message')
+  element.classList.remove(ClassName.filteredMessage, ClassName.deletedMessage)
   element.removeAttribute('is-deleted')
   const deletedState = element.querySelector('#deleted-state')
   if (deletedState) {
     deletedState.textContent = ''
   }
-  const errorIcon = element.querySelector('.ylcf-error-icon')
+  const errorIcon = element.querySelector(`.${ClassName.errorIcon}`)
   errorIcon && errorIcon.remove()
 
   const rule = getMatchedRule(author, message)
   if (!rule) {
+    element.classList.add(ClassName.filteredMessage)
     return
   }
 
-  element.classList.add('ylcf-deleted-message')
+  element.classList.add(ClassName.filteredMessage, ClassName.deletedMessage)
   element.setAttribute('is-deleted', '')
 
   if (rule.action === 'hide_completely') {
@@ -151,7 +164,7 @@ const filter = (element: HTMLElement) => {
       deletedState.textContent = '[message masked]'
     }
     const div = document.createElement('div')
-    div.classList.add('ylcf-error-icon')
+    div.classList.add(ClassName.errorIcon)
     div.title = getReason(rule)
     div.innerHTML = error
     const svg = div.querySelector('svg') as SVGElement
@@ -188,6 +201,7 @@ browser.runtime.onMessage.addListener((message) => {
   switch (id) {
     case 'enabledChanged':
       enabled = data.enabled
+      updateRoot()
       updateMenuButton()
       break
     case 'settingsChanged':
@@ -200,6 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const data = await browser.runtime.sendMessage({ id: 'contentLoaded' })
   enabled = data.enabled
   settings = data.settings
+  updateRoot()
   addMenuButton()
   await observe()
 })

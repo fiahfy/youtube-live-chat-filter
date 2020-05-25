@@ -4,27 +4,27 @@ yt-live-chat-header-renderer > #primary-content {
 yt-live-chat-header-renderer > #primary-content > #view-selector > yt-sort-filter-sub-menu-renderer {
   width: 100%;
 }
-yt-live-chat-header-renderer > .ylcf-filter-menu-button.ylcf-active-filter-menu-button > button > yt-icon {
+yt-live-chat-header-renderer > .ylcfr-menu-button.ylcfr-active-menu-button > button > yt-icon {
   color: #4387f1!important;
 }
-yt-live-chat-header-renderer > .ylcf-filter-menu-button > button > yt-icon > svg {
+yt-live-chat-header-renderer > .ylcfr-menu-button > button > yt-icon > svg {
   pointer-events: none;
   display: block;
   width: 100%;
   height: 100%;
 }
 
-yt-live-chat-text-message-renderer.ylcf-deleted-message .ylcf-error-icon {
+yt-live-chat-text-message-renderer.ylcfr-deleted-message .ylcfr-error-icon {
   cursor: pointer;
   display: block;
   margin-top: 4px;
   margin-right: 8px;
 }
-yt-live-chat-text-message-renderer.ylcf-deleted-message:hover #message {
+yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover #message {
   display: inline!important;
   color: inherit!important;
   font-style: inherit!important;
 }
-yt-live-chat-text-message-renderer.ylcf-deleted-message:hover #deleted-state {
+yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover #deleted-state {
   display: none!important;
 }
