@@ -123,20 +123,6 @@ const getReason = (rule: Rule) => {
 }
 
 const filter = (element: HTMLElement) => {
-  if (!enabled) {
-    return
-  }
-
-  if (element.tagName.toLowerCase() !== 'yt-live-chat-text-message-renderer') {
-    return
-  }
-
-  const author = element.querySelector('#author-name')?.textContent ?? undefined
-  const htmlMessage = element.querySelector('#message')?.innerHTML ?? undefined
-  const message = htmlMessage
-    ?.replace(/<img [^>]*alt="([^"]+)" [^>]*>/g, (_match, p1) => p1)
-    .replace(/<[^>]*>/g, '')
-
   // reset message
   element.classList.remove(ClassName.filteredMessage, ClassName.deletedMessage)
   element.removeAttribute('is-deleted')
@@ -147,31 +133,43 @@ const filter = (element: HTMLElement) => {
   const errorIcon = element.querySelector(`.${ClassName.errorIcon}`)
   errorIcon && errorIcon.remove()
 
-  const rule = getMatchedRule(author, message)
-  if (!rule) {
-    element.classList.add(ClassName.filteredMessage)
+  if (!enabled) {
     return
   }
 
-  element.classList.add(ClassName.filteredMessage, ClassName.deletedMessage)
-  element.setAttribute('is-deleted', '')
+  if (element.tagName.toLowerCase() === 'yt-live-chat-text-message-renderer') {
+    const author =
+      element.querySelector('#author-name')?.textContent ?? undefined
+    const htmlMessage =
+      element.querySelector('#message')?.innerHTML ?? undefined
+    const message = htmlMessage
+      ?.replace(/<img [^>]*alt="([^"]+)" [^>]*>/g, (_match, p1) => p1)
+      .replace(/<[^>]*>/g, '')
 
-  if (rule.action === 'hide_completely') {
-    element.style.display = 'none'
-  } else {
-    const deletedState = element.querySelector('#deleted-state')
-    if (deletedState) {
-      deletedState.textContent = '[message masked]'
+    const rule = getMatchedRule(author, message)
+    if (rule) {
+      element.classList.add(ClassName.deletedMessage)
+      element.setAttribute('is-deleted', '')
+
+      if (rule.action === 'hide_completely') {
+        element.style.display = 'none'
+      } else {
+        const deletedState = element.querySelector('#deleted-state')
+        if (deletedState) {
+          deletedState.textContent = '[message masked]'
+        }
+        const div = document.createElement('div')
+        div.classList.add(ClassName.errorIcon)
+        div.title = getReason(rule)
+        div.innerHTML = error
+        const svg = div.querySelector('svg') as SVGElement
+        svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
+        svg.style.width = '16px'
+        element.prepend(div)
+      }
     }
-    const div = document.createElement('div')
-    div.classList.add(ClassName.errorIcon)
-    div.title = getReason(rule)
-    div.innerHTML = error
-    const svg = div.querySelector('svg') as SVGElement
-    svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
-    svg.style.width = '16px'
-    element.prepend(div)
   }
+  element.classList.add(ClassName.filteredMessage)
 }
 
 const observe = async () => {
