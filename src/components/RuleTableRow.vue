@@ -1,12 +1,14 @@
 <template>
   <tr>
     <td class="caption text-capitalize" v-text="item.field" />
-    <td class="caption text-capitalize text-no-wrap" v-text="condition" />
+    <td class="caption text-capitalize" v-text="condition" />
     <td class="caption text-truncate value" v-text="item.value" />
-    <td class="caption text-capitalize text-no-wrap" v-text="action" />
+    <td class="caption action">
+      <v-icon>{{ actionIcon }}</v-icon>
+    </td>
     <td class="text-center">
       <v-chip
-        :color="item.active ? 'green' : 'red'"
+        :color="item.active ? 'green' : 'grey'"
         outlined
         x-small
         v-text="item.active ? 'active' : 'inactive'"
@@ -48,10 +50,10 @@ export default class RuleTableRow extends Vue {
     }[this.item.condition]
   }
 
-  get action() {
+  get actionIcon() {
     return {
-      mask_message: 'Mask Message', // eslint-disable-line @typescript-eslint/camelcase
-      hide_completely: 'Hide Completely', // eslint-disable-line @typescript-eslint/camelcase
+      mask_message: 'mdi-marker', // eslint-disable-line @typescript-eslint/camelcase
+      hide_completely: 'mdi-eye-off', // eslint-disable-line @typescript-eslint/camelcase
     }[this.item.action]
   }
 
@@ -77,7 +79,10 @@ export default class RuleTableRow extends Vue {
 
 <style lang="scss" scoped>
 .value {
-  max-width: 200px;
+  max-width: 150px;
   min-width: 96px;
+}
+.action {
+  width: 90px;
 }
 </style>
