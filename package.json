@@ -8,9 +8,9 @@
     "url": "https://fiahfy.github.io/"
   },
   "dependencies": {
+    "@vue/composition-api": "^1.0.0-beta.3",
     "nanoid": "^3.1.10",
     "vue": "^2.6.11",
-    "vue-property-decorator": "^9.0.0",
     "vuetify": "^2.3.4",
     "vuex": "^3.5.1",
     "vuex-module-decorators": "^0.17.0",

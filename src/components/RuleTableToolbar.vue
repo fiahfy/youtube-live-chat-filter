@@ -1,41 +1,50 @@
 <template>
   <v-toolbar flat color="transparent">
     <v-spacer />
-    <v-btn color="primary" depressed @click="onClickNew">
+    <v-btn color="primary" depressed @click="handleClickNew">
       New Rule
     </v-btn>
-    <rule-dialog v-model="dialog" :inputs.sync="form" />
+    <rule-dialog v-model="state.dialog" :inputs.sync="state.form" />
   </v-toolbar>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { settingsStore } from '~/store'
-import Rule from '~/models/rule'
+import { defineComponent, reactive, watch } from '@vue/composition-api'
 import RuleDialog from '~/components/RuleDialog.vue'
+import Rule from '~/models/rule'
+import { settingsStore } from '~/store'
 
-@Component({
+export default defineComponent({
   components: {
     RuleDialog,
   },
-})
-export default class RuleTableToolbar extends Vue {
-  dialog = false
-  form: Partial<Rule> = {
-    field: 'message',
-    condition: 'contains',
-    value: '',
-  }
+  setup() {
+    const state = reactive<{
+      dialog: boolean
+      form?: Partial<Rule>
+    }>({
+      dialog: false,
+      form: undefined,
+    })
 
-  @Watch('dialog')
-  onDialogChanged(value: boolean) {
-    if (!value && this.form) {
-      settingsStore.addRule({ ...this.form })
+    const handleClickNew = () => {
+      state.form = undefined
+      state.dialog = true
     }
-  }
 
-  onClickNew() {
-    this.dialog = true
-  }
-}
+    watch(
+      () => state.dialog,
+      (dialog) => {
+        if (!dialog && state.form) {
+          settingsStore.addRule({ ...state.form })
+        }
+      }
+    )
+
+    return {
+      state,
+      handleClickNew,
+    }
+  },
+})
 </script>

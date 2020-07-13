@@ -1,52 +1,56 @@
 <template>
   <v-app>
-    <v-content class="fill-height">
-      <v-container ref="container" fluid px-0>
+    <v-main class="fill-height">
+      <v-container fluid px-0>
         <rule-table />
-        <div v-if="expander" class="expander" />
+        <div v-if="state.expander" class="expander" />
       </v-container>
-    </v-content>
+    </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Ref, Watch } from 'vue-property-decorator'
-import { settingsStore } from '~/store'
-import Rule from '~/models/rule'
+import {
+  defineComponent,
+  reactive,
+  watch,
+  onMounted,
+  SetupContext,
+} from '@vue/composition-api'
 import RuleTable from '~/components/RuleTable.vue'
+import { settingsStore } from '~/store'
 
-@Component({
+export default defineComponent({
   components: {
     RuleTable,
   },
-})
-export default class Popup extends Vue {
-  @Ref() readonly container!: HTMLDivElement
-
-  expander = true
-
-  get rules() {
-    return settingsStore.rules
-  }
-
-  @Watch('rules')
-  onRulesChanged(value: Rule[], oldValue: Rule[]) {
-    if (oldValue.length && value.length > oldValue.length) {
-      this.$nextTick(() => {
-        const wrapper = this.container.parentElement
-        if (wrapper) {
-          wrapper.scrollTop = wrapper.scrollHeight
-        }
-      })
-    }
-  }
-
-  mounted() {
-    setTimeout(() => {
-      this.expander = false
+  setup(_props: unknown, context: SetupContext) {
+    const state = reactive({
+      expander: true,
     })
-  }
-}
+
+    watch(
+      () => settingsStore.rules,
+      (rules, prevRules) => {
+        if (rules.length > prevRules.length && prevRules.length) {
+          context.root.$nextTick(() => {
+            window.scrollTo(0, document.body.offsetHeight)
+          })
+        }
+      }
+    )
+
+    onMounted(() => {
+      setTimeout(() => {
+        state.expander = false
+      })
+    })
+
+    return {
+      state,
+    }
+  },
+})
 </script>
 
 <style lang="scss">

@@ -2,7 +2,11 @@
   <tr>
     <td class="caption text-capitalize" v-text="item.field" />
     <td class="caption text-capitalize" v-text="condition" />
-    <td class="caption text-truncate value" v-text="item.value" />
+    <td
+      class="caption text-truncate value"
+      :title="item.value"
+      v-text="item.value"
+    />
     <td class="caption action">
       <v-icon>{{ actionIcon }}</v-icon>
     </td>
@@ -15,66 +19,97 @@
       />
     </td>
     <td class="text-no-wrap">
-      <v-btn class="mr-1" icon @click="onClickEdit">
+      <v-btn class="mr-1" icon @click="handleClickEdit">
         <v-icon color="teal">mdi-pencil</v-icon>
       </v-btn>
-      <v-btn icon @click="onClickDelete">
+      <v-btn icon @click="handleClickDelete">
         <v-icon color="pink">mdi-delete</v-icon>
       </v-btn>
     </td>
-    <rule-dialog v-model="dialog" :inputs.sync="form" title="Edit Rule" />
+    <rule-dialog
+      v-model="state.dialog"
+      :inputs.sync="state.form"
+      title="Edit Rule"
+    />
   </tr>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { settingsStore } from '~/store'
-import Rule from '~/models/rule'
+import {
+  defineComponent,
+  computed,
+  reactive,
+  watch,
+} from '@vue/composition-api'
 import RuleDialog from '~/components/RuleDialog.vue'
+import Rule from '~/models/rule'
+import { settingsStore } from '~/store'
 
-@Component({
+type Props = {
+  item: Rule
+}
+
+export default defineComponent({
   components: {
     RuleDialog,
   },
-})
-export default class RuleTableRow extends Vue {
-  @Prop({ type: Object, required: true }) readonly item!: Rule
+  props: {
+    item: {
+      type: Object,
+      required: true,
+    },
+  },
+  setup(props: Props) {
+    const state = reactive<{
+      dialog: boolean
+      form?: Partial<Rule>
+    }>({
+      dialog: false,
+      form: undefined,
+    })
 
-  dialog = false
-  form = {}
+    const condition = computed(() => {
+      return {
+        contains: 'Contains',
+        matches_regular_expression: 'Matches Regular Expression',
+      }[props.item.condition]
+    })
+    const actionIcon = computed(() => {
+      return {
+        mask_message: 'mdi-marker',
+        hide_completely: 'mdi-eye-off',
+      }[props.item.action]
+    })
 
-  get condition() {
-    return {
-      contains: 'Contains',
-      matches_regular_expression: 'Matches Regular Expression', // eslint-disable-line @typescript-eslint/camelcase
-    }[this.item.condition]
-  }
-
-  get actionIcon() {
-    return {
-      mask_message: 'mdi-marker', // eslint-disable-line @typescript-eslint/camelcase
-      hide_completely: 'mdi-eye-off', // eslint-disable-line @typescript-eslint/camelcase
-    }[this.item.action]
-  }
-
-  @Watch('dialog')
-  onDialogChanged(value: boolean) {
-    if (!value && this.form) {
-      settingsStore.setRule({
-        ...this.form,
-        id: this.item.id,
-      })
+    const handleClickEdit = () => {
+      state.form = props.item
+      state.dialog = true
     }
-  }
+    const handleClickDelete = () => {
+      settingsStore.removeRule({ id: props.item.id })
+    }
 
-  onClickEdit() {
-    this.form = this.item
-    this.dialog = true
-  }
-  onClickDelete() {
-    settingsStore.removeRule({ id: this.item.id })
-  }
-}
+    watch(
+      () => state.dialog,
+      (dialog) => {
+        if (!dialog && state.form) {
+          settingsStore.setRule({
+            ...state.form,
+            id: props.item.id,
+          })
+        }
+      }
+    )
+
+    return {
+      state,
+      condition,
+      actionIcon,
+      handleClickEdit,
+      handleClickDelete,
+    }
+  },
+})
 </script>
 
 <style lang="scss" scoped>
