@@ -11,7 +11,7 @@
 <script lang="ts">
 import { defineComponent, reactive, watch } from '@vue/composition-api'
 import RuleDialog from '~/components/RuleDialog.vue'
-import Rule from '~/models/rule'
+import { Rule } from '~/models'
 import { settingsStore } from '~/store'
 
 export default defineComponent({

@@ -1,5 +1,5 @@
-import Rule from '~/models/rule'
+import { Rule } from './rule'
 
-export default interface Settings {
+export type Settings = {
   rules: Rule[]
 }

@@ -62,7 +62,7 @@ import {
   SetupContext,
 } from '@vue/composition-api'
 import { VForm } from 'vuetify/lib'
-import Rule from '~/models/rule'
+import { Rule } from '~/models'
 
 const fields = [
   { text: 'Author', value: 'author' },

@@ -1,8 +1,7 @@
 import { browser } from 'webextension-polyfill-ts'
 import error from '~/assets/error.svg'
 import filterList from '~/assets/filter-list.svg'
-import Settings from '~/models/settings'
-import Rule from '~/models/rule'
+import { Rule, Settings } from '~/models'
 
 const ClassName = {
   active: 'ylcfr-active',
