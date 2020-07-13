@@ -12,6 +12,7 @@ const ClassName = {
   filteredMessage: 'ylcfr-filtered-message',
   deletedMessage: 'ylcfr-deleted-message',
 }
+const maskedMessage = '[message masked]'
 
 let enabled: boolean
 let settings: Settings
@@ -127,7 +128,7 @@ const filter = (element: HTMLElement) => {
   element.classList.remove(ClassName.filteredMessage, ClassName.deletedMessage)
   element.removeAttribute('is-deleted')
   const deletedState = element.querySelector('#deleted-state')
-  if (deletedState) {
+  if (deletedState && deletedState.textContent === maskedMessage) {
     deletedState.textContent = ''
   }
   const errorIcon = element.querySelector(`.${ClassName.errorIcon}`)
@@ -156,7 +157,7 @@ const filter = (element: HTMLElement) => {
       } else {
         const deletedState = element.querySelector('#deleted-state')
         if (deletedState) {
-          deletedState.textContent = '[message masked]'
+          deletedState.textContent = maskedMessage
         }
         const div = document.createElement('div')
         div.classList.add(ClassName.errorIcon)
