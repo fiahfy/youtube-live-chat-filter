@@ -3,11 +3,12 @@ import { readyStore } from '~/store'
 import iconOff from '~/assets/icon-off.png'
 import iconOn from '~/assets/icon-on.png'
 import inject from '~/assets/inject.css'
+import { Settings } from './models'
 
 let initialEnabled = true
 let enabledStates: { [tabId: number]: boolean } = {}
 
-const getSettings = async () => {
+const getSettings = async (): Promise<Settings> => {
   const store = await readyStore()
   return JSON.parse(JSON.stringify(store.state.settings))
 }
@@ -46,6 +47,16 @@ const menuButtonClicked = async (tabId: number) => {
   })
 }
 
+const addButtonClicked = async ({ author }: { author: string }) => {
+  const store = await readyStore()
+  store.commit('addRule', {
+    field: 'author',
+    condition: 'equals',
+    value: author,
+  })
+  await settingsChanged()
+}
+
 const settingsChanged = async () => {
   const settings = await getSettings()
   const tabs = await browser.tabs.query({})
@@ -61,13 +72,16 @@ const settingsChanged = async () => {
 }
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
-  const { id } = message
+  const { id, data } = message
   const { tab, frameId } = sender
   switch (id) {
     case 'contentLoaded':
       return tab?.id && frameId && (await contentLoaded(tab.id, frameId))
     case 'menuButtonClicked':
       tab?.id && (await menuButtonClicked(tab.id))
+      break
+    case 'addButtonClicked':
+      await addButtonClicked(data)
       break
     case 'settingsChanged':
       await settingsChanged()

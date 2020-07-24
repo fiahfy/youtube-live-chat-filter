@@ -1,4 +1,5 @@
 import { browser } from 'webextension-polyfill-ts'
+import cancel from '~/assets/cancel.svg'
 import error from '~/assets/error.svg'
 import filterList from '~/assets/filter-list.svg'
 import { Rule, Settings } from '~/models'
@@ -8,6 +9,7 @@ const ClassName = {
   menuButton: 'ylcfr-menu-button',
   activeMenuButton: 'ylcfr-active-menu-button',
   errorIcon: 'ylcfr-error-icon',
+  cancelIcon: 'ylcfr-cancel-icon',
   filteredMessage: 'ylcfr-filtered-message',
   deletedMessage: 'ylcfr-deleted-message',
 }
@@ -97,24 +99,25 @@ const getMatchedRule = (author?: string, message?: string) => {
       return carry
     }
 
-    let reg
-    try {
-      const pattern =
-        condition === 'matches_regular_expression'
-          ? value
-          : value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
-
-      reg = new RegExp(`(${pattern})`)
-    } catch (e) {
-      return carry
-    }
-
     const text = field === 'author' ? author : message
-    if (!text || !reg.test(text)) {
+    if (!text) {
       return carry
     }
 
-    return rule
+    const matched = (() => {
+      switch (condition) {
+        case 'contains':
+          return text.includes(value)
+        case 'equals':
+          return text === value
+        case 'matches_regular_expression': {
+          const reg = new RegExp(value)
+          return reg.test(text)
+        }
+      }
+    })()
+
+    return matched ? rule : carry
   }, undefined)
 }
 
@@ -122,7 +125,7 @@ const getReason = (rule: Rule) => {
   return `${rule.field} ${rule.condition.replace(/_/g, ' ')} "${rule.value}"`
 }
 
-const filter = (element: HTMLElement) => {
+const updateItem = (element: HTMLElement) => {
   // reset message
   element.classList.remove(ClassName.filteredMessage, ClassName.deletedMessage)
   element.removeAttribute('is-deleted')
@@ -130,6 +133,8 @@ const filter = (element: HTMLElement) => {
   if (deletedState && deletedState.textContent === maskedMessage) {
     deletedState.textContent = ''
   }
+  const cancelIcon = element.querySelector(`.${ClassName.cancelIcon}`)
+  cancelIcon && cancelIcon.remove()
   const errorIcon = element.querySelector(`.${ClassName.errorIcon}`)
   errorIcon && errorIcon.remove()
 
@@ -162,21 +167,52 @@ const filter = (element: HTMLElement) => {
         div.classList.add(ClassName.errorIcon)
         div.title = getReason(rule)
         div.innerHTML = error
+        div.style.display = 'none'
         const svg = div.querySelector('svg') as SVGElement
         svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
         svg.style.width = '16px'
         element.prepend(div)
       }
+    } else {
+      const div = document.createElement('div')
+      div.classList.add(ClassName.cancelIcon)
+      div.title = 'add this author to filters'
+      div.innerHTML = cancel
+      div.style.display = 'none'
+      div.onclick = () => {
+        browser.runtime.sendMessage({
+          id: 'addButtonClicked',
+          data: { author },
+        })
+      }
+      const svg = div.querySelector('svg') as SVGElement
+      svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
+      svg.style.width = '16px'
+      element.prepend(div)
     }
   }
+
   element.classList.add(ClassName.filteredMessage)
 }
 
+const updateItems = () => {
+  const items = Array.from(
+    document.querySelectorAll(
+      '#items.yt-live-chat-item-list-renderer>yt-live-chat-text-message-renderer'
+    )
+  )
+  for (const item of items) {
+    if (item instanceof HTMLElement) {
+      updateItem(item)
+    }
+  }
+}
+
 const observe = async () => {
-  const items = await querySelectorAsync(
+  const wrapper = await querySelectorAsync(
     '#items.yt-live-chat-item-list-renderer'
   )
-  if (!items) {
+  if (!wrapper) {
     return
   }
 
@@ -185,13 +221,13 @@ const observe = async () => {
       const nodes = Array.from(mutation.addedNodes)
       nodes.forEach((node: Node) => {
         if (node instanceof HTMLElement) {
-          filter(node)
+          updateItem(node)
         }
       })
     })
   })
 
-  observer.observe(items, { childList: true })
+  observer.observe(wrapper, { childList: true })
 }
 
 browser.runtime.onMessage.addListener((message) => {
@@ -201,9 +237,11 @@ browser.runtime.onMessage.addListener((message) => {
       enabled = data.enabled
       updateRoot()
       updateMenuButton()
+      updateItems()
       break
     case 'settingsChanged':
       settings = data.settings
+      updateItems()
       break
   }
 })
@@ -214,5 +252,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   settings = data.settings
   updateRoot()
   addMenuButton()
+  updateItems()
   await observe()
 })

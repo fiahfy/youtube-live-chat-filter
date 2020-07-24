@@ -14,16 +14,21 @@ yt-live-chat-header-renderer > .ylcfr-menu-button > button > yt-icon > svg {
   height: 100%;
 }
 
-yt-live-chat-text-message-renderer.ylcfr-deleted-message .ylcfr-error-icon {
+yt-live-chat-text-message-renderer .ylcfr-cancel-icon,
+yt-live-chat-text-message-renderer .ylcfr-error-icon {
   cursor: pointer;
   display: block;
   margin-top: 4px;
   margin-right: 8px;
 }
+yt-live-chat-text-message-renderer:hover .ylcfr-cancel-icon,
+yt-live-chat-text-message-renderer:hover .ylcfr-error-icon {
+  display: block!important;
+}
 yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover #message {
   display: inline!important;
-  color: inherit!important;
   font-style: inherit!important;
+  text-decoration: line-through;
 }
 yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover #deleted-state {
   display: none!important;

@@ -1,5 +1,5 @@
 type Field = 'author' | 'message'
-type Condition = 'contains' | 'matches_regular_expression'
+type Condition = 'contains' | 'equals' | 'matches_regular_expression'
 type Action = 'mask_message' | 'hide_completely'
 
 export type Rule = {

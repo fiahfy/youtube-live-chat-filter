@@ -10,35 +10,17 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  reactive,
-  watch,
-  onMounted,
-  SetupContext,
-} from '@vue/composition-api'
+import { defineComponent, reactive, onMounted } from '@vue/composition-api'
 import RuleTable from '~/components/RuleTable.vue'
-import { settingsStore } from '~/store'
 
 export default defineComponent({
   components: {
     RuleTable,
   },
-  setup(_props: unknown, context: SetupContext) {
+  setup() {
     const state = reactive({
       expander: true,
     })
-
-    watch(
-      () => settingsStore.rules,
-      (rules, prevRules) => {
-        if (rules.length > prevRules.length && prevRules.length) {
-          context.root.$nextTick(() => {
-            window.scrollTo(0, document.body.offsetHeight)
-          })
-        }
-      }
-    )
 
     onMounted(() => {
       setTimeout(() => {

@@ -1,27 +1,27 @@
 <template>
-  <v-dialog v-model="state.dialog" max-width="480">
-    <v-form ref="form" v-model="state.valid" lazy-validation>
+  <v-dialog v-model="value" max-width="480" class="rule-dialog">
+    <v-form ref="formRef" v-model="state.valid" lazy-validation>
       <v-card>
         <v-card-title primary-title>
           <span class="title" v-text="title" />
         </v-card-title>
         <v-card-text>
           <v-select
-            v-model="state.formInputs.field"
+            v-model="state.form.field"
             :items="fields"
             label="Field"
             dense
             class="pt-3"
           />
           <v-select
-            v-model="state.formInputs.condition"
+            v-model="state.form.condition"
             :items="conditions"
             label="Condition"
             dense
             class="pt-3"
           />
           <v-text-field
-            v-model="state.formInputs.value"
+            v-model="state.form.value"
             :rules="valueRules"
             label="Value"
             :placeholder="placeholder"
@@ -29,26 +29,46 @@
             autofocus
           />
           <v-select
-            v-model="state.formInputs.action"
+            v-model="state.form.action"
             :items="actions"
             label="Action"
             dense
             class="pt-3"
           />
           <v-switch
-            v-model="state.formInputs.active"
-            :label="state.formInputs.active ? 'Active' : 'Inactive'"
+            v-model="state.form.active"
+            :label="state.form.active ? 'Active' : 'Inactive'"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn text @click.native="handleClickClose">Cancel</v-btn>
+          <v-btn text @click.native="handleClickCancel">Cancel</v-btn>
           <v-btn color="primary" text @click.native="handleClickSave">
             Save
+          </v-btn>
+          <v-btn
+            v-if="editing"
+            color="error"
+            text
+            @click.native="handleClickConfirm"
+          >
+            Delete
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-form>
+    <v-dialog v-model="state.dialog" max-width="360">
+      <v-card>
+        <v-card-title primary-title>
+          <span class="title">Delete this rule?</span>
+        </v-card-title>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="handleClickCancelConfirm">Cancel</v-btn>
+          <v-btn color="error" text @click="handleClickSubmit">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-dialog>
 </template>
 
@@ -70,6 +90,7 @@ const fields = [
 ]
 const conditions = [
   { text: 'Contains', value: 'contains' },
+  { text: 'Equals', value: 'equals' },
   { text: 'Matches Regular Expression', value: 'matches_regular_expression' },
 ]
 const actions = [
@@ -80,8 +101,8 @@ const valueRules = [(v: string) => !!v || 'Value is required']
 
 type Props = {
   value: boolean
-  title: string
-  inputs: Partial<Rule>
+  editing: boolean
+  form: Partial<Rule>
 }
 
 export default defineComponent({
@@ -90,56 +111,66 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    title: {
-      type: String,
-      default: 'New Rule',
+    editing: {
+      type: Boolean,
+      default: false,
     },
-    inputs: {
+    form: {
       type: Object,
       default: () => ({}),
     },
   },
   setup(props: Props, context: SetupContext) {
     const state = reactive<{
-      valid: boolean
       dialog: boolean
-      formInputs: Partial<Rule>
+      valid: boolean
+      form: Partial<Rule>
     }>({
-      valid: false,
       dialog: false,
-      formInputs: {},
+      valid: false,
+      form: {},
     })
 
+    const title = computed(() => {
+      return props.editing ? 'Edit Rule' : 'New Rule'
+    })
     const placeholder = computed(() =>
-      state.formInputs.condition === 'contains' ? 'Text' : 'Pattern'
+      state.form.condition === 'matches_regular_expression' ? 'Pattern' : 'Text'
     )
 
-    const form = ref<typeof VForm>()
+    const formRef = ref<typeof VForm>()
 
-    const handleClickClose = () => {
-      context.emit('update:inputs', undefined)
-      context.emit('input', false)
+    const handleClickCancel = () => {
+      context.emit('click:cancel')
     }
     const handleClickSave = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (!(form.value as any).validate()) {
+      if (!(formRef.value as any).validate()) {
         return
       }
-      context.emit('update:inputs', { ...state.formInputs })
-      context.emit('input', false)
+      context.emit('click:save', { ...state.form })
+    }
+    const handleClickConfirm = () => {
+      state.dialog = true
+    }
+    const handleClickCancelConfirm = () => {
+      state.dialog = false
+    }
+    const handleClickSubmit = () => {
+      state.dialog = false
+      context.emit('click:delete', { ...state.form })
     }
 
     watch(
       () => props.value,
       (value) => {
-        state.dialog = value
         if (value) {
-          state.formInputs = {
+          state.form = {
             active: true,
             field: 'message',
             condition: 'contains',
             action: 'mask_message',
-            ...props.inputs,
+            ...props.form,
           }
         }
       }
@@ -151,10 +182,14 @@ export default defineComponent({
       actions,
       valueRules,
       state,
+      title,
       placeholder,
-      form,
-      handleClickClose,
+      formRef,
+      handleClickCancel,
       handleClickSave,
+      handleClickConfirm,
+      handleClickCancelConfirm,
+      handleClickSubmit,
     }
   },
 })

@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr class="rule-table-row">
     <td class="caption text-capitalize" v-text="item.field" />
     <td class="caption text-capitalize" v-text="condition" />
     <td
@@ -7,7 +7,7 @@
       :title="item.value"
       v-text="item.value"
     />
-    <td class="caption action">
+    <td class="text-center caption action">
       <v-icon>{{ actionIcon }}</v-icon>
     </td>
     <td class="text-center">
@@ -15,44 +15,22 @@
         :color="item.active ? 'green' : 'grey'"
         outlined
         x-small
+        style="pointer-events: none;"
         v-text="item.active ? 'active' : 'inactive'"
       />
     </td>
-    <td class="text-no-wrap">
-      <v-btn class="mr-1" icon @click="handleClickEdit">
-        <v-icon color="teal">mdi-pencil</v-icon>
-      </v-btn>
-      <v-btn icon @click="handleClickDelete">
-        <v-icon color="pink">mdi-delete</v-icon>
-      </v-btn>
-    </td>
-    <rule-dialog
-      v-model="state.dialog"
-      :inputs.sync="state.form"
-      title="Edit Rule"
-    />
   </tr>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  computed,
-  reactive,
-  watch,
-} from '@vue/composition-api'
-import RuleDialog from '~/components/RuleDialog.vue'
+import { defineComponent, computed } from '@vue/composition-api'
 import { Rule } from '~/models'
-import { settingsStore } from '~/store'
 
 type Props = {
   item: Rule
 }
 
 export default defineComponent({
-  components: {
-    RuleDialog,
-  },
   props: {
     item: {
       type: Object,
@@ -60,17 +38,10 @@ export default defineComponent({
     },
   },
   setup(props: Props) {
-    const state = reactive<{
-      dialog: boolean
-      form?: Partial<Rule>
-    }>({
-      dialog: false,
-      form: undefined,
-    })
-
     const condition = computed(() => {
       return {
         contains: 'Contains',
+        equals: 'Equals',
         matches_regular_expression: 'Matches Regular Expression',
       }[props.item.condition]
     })
@@ -81,32 +52,9 @@ export default defineComponent({
       }[props.item.action]
     })
 
-    const handleClickEdit = () => {
-      state.form = props.item
-      state.dialog = true
-    }
-    const handleClickDelete = () => {
-      settingsStore.removeRule({ id: props.item.id })
-    }
-
-    watch(
-      () => state.dialog,
-      (dialog) => {
-        if (!dialog && state.form) {
-          settingsStore.setRule({
-            ...state.form,
-            id: props.item.id,
-          })
-        }
-      }
-    )
-
     return {
-      state,
       condition,
       actionIcon,
-      handleClickEdit,
-      handleClickDelete,
     }
   },
 })
