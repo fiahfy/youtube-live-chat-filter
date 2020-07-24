@@ -14,6 +14,7 @@
 ![screenshot](.github/img/screenshot1.png)
 ![screenshot](.github/img/screenshot2.png)
 ![screenshot](.github/img/screenshot3.png)
+![screenshot](.github/img/screenshot4.png)
 
 ## Installation
 
