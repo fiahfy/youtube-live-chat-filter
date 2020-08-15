@@ -1,14 +1,20 @@
 <template>
   <v-data-table
+    v-model="state.selected"
+    :search="state.search"
     :headers="headers"
     :items="rules"
     :mobile-breakpoint="0"
     :items-per-page="-1"
-    hide-default-footer
     class="rule-table"
+    hide-default-footer
+    show-select
   >
     <template v-slot:top>
-      <rule-table-toolbar />
+      <rule-table-toolbar
+        :selected.sync="state.selected"
+        :query.sync="state.search"
+      />
       <rule-dialog
         v-model="state.dialog"
         editing
@@ -20,7 +26,7 @@
     </template>
     <template v-slot:item="props">
       <rule-table-row
-        :item="props.item"
+        v-bind="props"
         @click.native="() => handleClickRow(props.item)"
       />
     </template>
@@ -32,8 +38,8 @@ import { defineComponent, computed, reactive } from '@vue/composition-api'
 import RuleDialog from '~/components/RuleDialog.vue'
 import RuleTableRow from '~/components/RuleTableRow.vue'
 import RuleTableToolbar from '~/components/RuleTableToolbar.vue'
+import { Rule } from '~/models'
 import { settingsStore } from '~/store'
-import { Rule } from '../models'
 
 const headers = [
   { text: 'Field', value: 'field' },
@@ -51,9 +57,13 @@ export default defineComponent({
   },
   setup() {
     const state = reactive<{
+      selected: Rule[]
+      search: string
       dialog: boolean
       form?: Partial<Rule>
     }>({
+      selected: [],
+      search: '',
       dialog: false,
       form: undefined,
     })

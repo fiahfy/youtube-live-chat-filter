@@ -1,5 +1,12 @@
 <template>
-  <tr class="rule-table-row">
+  <tr class="rule-table-row" :class="classes">
+    <td>
+      <v-simple-checkbox
+        :value="isSelected"
+        :ripple="false"
+        @input="handleSelect"
+      />
+    </td>
     <td class="caption text-capitalize" v-text="item.field" />
     <td class="caption text-capitalize" v-text="condition" />
     <td
@@ -28,6 +35,8 @@ import { Rule } from '~/models'
 
 type Props = {
   item: Rule
+  isSelected: boolean
+  select: (v: boolean) => void
 }
 
 export default defineComponent({
@@ -36,8 +45,19 @@ export default defineComponent({
       type: Object,
       required: true,
     },
+    isSelected: {
+      type: Boolean,
+      required: true,
+    },
+    select: {
+      type: Function,
+      required: true,
+    },
   },
   setup(props: Props) {
+    const classes = computed(() => {
+      return props.isSelected ? 'v-data-table__selected' : ''
+    })
     const condition = computed(() => {
       return {
         contains: 'Contains',
@@ -52,9 +72,15 @@ export default defineComponent({
       }[props.item.action]
     })
 
+    const handleSelect = (value: boolean) => {
+      props.select(value)
+    }
+
     return {
+      classes,
       condition,
       actionIcon,
+      handleSelect,
     }
   },
 })

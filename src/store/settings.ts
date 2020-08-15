@@ -23,7 +23,7 @@ export default class SettingsModule extends VuexModule {
         field: 'message',
         condition: 'contains',
         value: '',
-        action: 'mask_message',
+        action: 'hide_completely',
         ...params,
         id,
       },
@@ -32,6 +32,10 @@ export default class SettingsModule extends VuexModule {
   @Mutation
   removeRule({ id }: { id: string }): void {
     this.rules = this.rules.filter((item) => item.id !== id)
+  }
+  @Mutation
+  removeRules({ ids }: { ids: string[] }): void {
+    this.rules = this.rules.filter((item) => !ids.includes(item.id))
   }
   @Mutation
   setRule({ id, ...params }: Partial<Rule>): void {

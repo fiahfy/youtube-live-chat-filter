@@ -169,7 +169,7 @@ export default defineComponent({
             active: true,
             field: 'message',
             condition: 'contains',
-            action: 'mask_message',
+            action: 'hide_completely',
             ...props.form,
           }
         }
