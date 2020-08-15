@@ -2,7 +2,6 @@ import { browser } from 'webextension-polyfill-ts'
 import { readyStore } from '~/store'
 import iconOff from '~/assets/icon-off.png'
 import iconOn from '~/assets/icon-on.png'
-import inject from '~/assets/inject.css'
 import { Settings } from './models'
 
 let initialEnabled = true
@@ -18,13 +17,12 @@ const setIcon = async (tabId: number, enabled: boolean) => {
   await browser.pageAction.setIcon({ tabId, path })
 }
 
-const contentLoaded = async (tabId: number, frameId: number) => {
+const contentLoaded = async (tabId: number) => {
   const enabled = enabledStates[tabId] ?? initialEnabled
   enabledStates = { ...enabledStates, [tabId]: enabled }
 
   await setIcon(tabId, enabled)
   await browser.pageAction.show(tabId)
-  await browser.tabs.insertCSS(tabId, { frameId, file: inject })
 
   const settings = await getSettings()
 
@@ -73,10 +71,10 @@ const settingsChanged = async () => {
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
   const { id, data } = message
-  const { tab, frameId } = sender
+  const { tab } = sender
   switch (id) {
     case 'contentLoaded':
-      return tab?.id && frameId && (await contentLoaded(tab.id, frameId))
+      return tab?.id && (await contentLoaded(tab.id))
     case 'menuButtonClicked':
       tab?.id && (await menuButtonClicked(tab.id))
       break
