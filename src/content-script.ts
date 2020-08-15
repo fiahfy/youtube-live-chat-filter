@@ -12,6 +12,7 @@ const ClassName = {
   cancelIcon: 'ylcfr-cancel-icon',
   filteredMessage: 'ylcfr-filtered-message',
   deletedMessage: 'ylcfr-deleted-message',
+  hiddenMessage: 'ylcfr-hidden-message',
 }
 const maskedMessage = '[message masked]'
 
@@ -127,7 +128,11 @@ const getReason = (rule: Rule) => {
 
 const updateItem = (element: HTMLElement) => {
   // reset message
-  element.classList.remove(ClassName.filteredMessage, ClassName.deletedMessage)
+  element.classList.remove(
+    ClassName.filteredMessage,
+    ClassName.deletedMessage,
+    ClassName.hiddenMessage
+  )
   element.removeAttribute('is-deleted')
   const deletedState = element.querySelector('#deleted-state')
   if (deletedState && deletedState.textContent === maskedMessage) {
@@ -157,7 +162,7 @@ const updateItem = (element: HTMLElement) => {
       element.setAttribute('is-deleted', '')
 
       if (rule.action === 'hide_completely') {
-        element.style.display = 'none'
+        element.classList.add(ClassName.hiddenMessage)
       } else {
         const deletedState = element.querySelector('#deleted-state')
         if (deletedState) {

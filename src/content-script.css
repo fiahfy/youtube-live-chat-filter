@@ -33,3 +33,6 @@ yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover #message {
 yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover #deleted-state {
   display: none!important;
 }
+yt-live-chat-text-message-renderer.ylcfr-hidden-message {
+  display: none!important;
+}
