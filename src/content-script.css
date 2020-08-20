@@ -20,25 +20,47 @@ yt-live-chat-header-renderer > .ylcfr-menu-button > button > yt-icon > svg {
   height: 100%;
 }
 
-yt-live-chat-text-message-renderer .ylcfr-cancel-icon,
-yt-live-chat-text-message-renderer .ylcfr-error-icon {
+yt-live-chat-text-message-renderer > #author-photo {
+  position: relative;
+}
+yt-live-chat-text-message-renderer > #author-photo > .ylcfr-cancel-icon,
+yt-live-chat-text-message-renderer > #author-photo > .ylcfr-error-icon {
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-content: center;
+}
+yt-live-chat-text-message-renderer > #author-photo > .ylcfr-cancel-icon {
   cursor: pointer;
-  display: block;
-  margin-top: 4px;
-  margin-right: 8px;
 }
-yt-live-chat-text-message-renderer:hover .ylcfr-cancel-icon,
-yt-live-chat-text-message-renderer:hover .ylcfr-error-icon {
-  display: block !important;
+yt-live-chat-text-message-renderer > #author-photo > .ylcfr-cancel-icon > svg,
+yt-live-chat-text-message-renderer > #author-photo > .ylcfr-error-icon > svg {
+  fill: rgba(255, 255, 255, 0.7);
+  width: 16px;
 }
-yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover #message {
+yt-live-chat-text-message-renderer:hover > #author-photo > .ylcfr-cancel-icon,
+yt-live-chat-text-message-renderer:hover > #author-photo > .ylcfr-error-icon {
+  display: flex !important;
+}
+/* .ylcfr-deleted-message */
+yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover
+  > #content
+  > #message {
   display: inline !important;
   font-style: inherit !important;
   text-decoration: line-through;
 }
-yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover #deleted-state {
+yt-live-chat-text-message-renderer.ylcfr-deleted-message:hover
+  > #content
+  > #deleted-state {
   display: none !important;
 }
+/* .ylcfr-hidden-message */
 yt-live-chat-text-message-renderer.ylcfr-hidden-message {
   display: none !important;
 }

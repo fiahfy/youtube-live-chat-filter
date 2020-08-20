@@ -122,8 +122,35 @@ const getMatchedRule = (author?: string, message?: string) => {
   }, undefined)
 }
 
+const capitalize = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
 const getReason = (rule: Rule) => {
-  return `${rule.field} ${rule.condition.replace(/_/g, ' ')} "${rule.value}"`
+  return capitalize(
+    `${rule.field} ${rule.condition.replace(/_/g, ' ')} "${rule.value}"`
+  )
+}
+
+const addIconButton = ({
+  element,
+  className,
+  title,
+  html,
+  onclick = () => undefined,
+}: {
+  element: HTMLElement
+  className: string
+  title: string
+  html: string
+  onclick?: () => void
+}) => {
+  const div = document.createElement('div')
+  div.classList.add(className)
+  div.title = title
+  div.innerHTML = html
+  div.onclick = onclick
+  element.querySelector('#author-photo')?.append(div)
 }
 
 const updateItem = (element: HTMLElement) => {
@@ -133,11 +160,13 @@ const updateItem = (element: HTMLElement) => {
     ClassName.deletedMessage,
     ClassName.hiddenMessage
   )
+  // reset deleted
   element.removeAttribute('is-deleted')
   const deletedState = element.querySelector('#deleted-state')
   if (deletedState && deletedState.textContent === maskedMessage) {
     deletedState.textContent = ''
   }
+  // reset icon button
   const cancelIcon = element.querySelector(`.${ClassName.cancelIcon}`)
   cancelIcon && cancelIcon.remove()
   const errorIcon = element.querySelector(`.${ClassName.errorIcon}`)
@@ -168,32 +197,26 @@ const updateItem = (element: HTMLElement) => {
         if (deletedState) {
           deletedState.textContent = maskedMessage
         }
-        const div = document.createElement('div')
-        div.classList.add(ClassName.errorIcon)
-        div.title = getReason(rule)
-        div.innerHTML = error
-        div.style.display = 'none'
-        const svg = div.querySelector('svg') as SVGElement
-        svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
-        svg.style.width = '16px'
-        element.prepend(div)
-      }
-    } else {
-      const div = document.createElement('div')
-      div.classList.add(ClassName.cancelIcon)
-      div.title = 'add this author to filters'
-      div.innerHTML = cancel
-      div.style.display = 'none'
-      div.onclick = () => {
-        browser.runtime.sendMessage({
-          id: 'addButtonClicked',
-          data: { author },
+        addIconButton({
+          element,
+          className: ClassName.errorIcon,
+          title: getReason(rule),
+          html: error,
         })
       }
-      const svg = div.querySelector('svg') as SVGElement
-      svg.style.fill = 'var(--yt-live-chat-secondary-text-color)'
-      svg.style.width = '16px'
-      element.prepend(div)
+    } else {
+      addIconButton({
+        element,
+        className: ClassName.cancelIcon,
+        title: 'Add this author to filters',
+        html: cancel,
+        onclick: () => {
+          browser.runtime.sendMessage({
+            id: 'addButtonClicked',
+            data: { author },
+          })
+        },
+      })
     }
   }
 
