@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="value" max-width="480" class="rule-dialog">
+  <v-dialog v-model="value" class="rule-dialog" max-width="480" persistent>
     <v-form ref="formRef" v-model="state.valid" lazy-validation>
       <v-card>
         <v-card-title primary-title>
