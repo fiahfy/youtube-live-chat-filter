@@ -8,7 +8,7 @@ import settings from '~/store/settings'
 Vue.use(Vuex)
 
 const vuexPersist = new VuexPersistence({
-  storage: browser.storage.local as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  storage: browser.storage.sync as any, // eslint-disable-line @typescript-eslint/no-explicit-any
   asyncStorage: true,
   restoreState: async (key, storage) => {
     const result = await storage?.get(key)
