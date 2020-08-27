@@ -1,6 +1,6 @@
 <template>
   <tr class="rule-table-row" :class="classes">
-    <td>
+    <td @click.stop>
       <v-simple-checkbox
         :value="isSelected"
         :ripple="false"
