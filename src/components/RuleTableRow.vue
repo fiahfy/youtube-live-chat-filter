@@ -22,7 +22,7 @@
         :color="item.active ? 'green' : 'grey'"
         outlined
         x-small
-        style="pointer-events: none;"
+        style="pointer-events: none"
         v-text="item.active ? 'active' : 'inactive'"
       />
     </td>
