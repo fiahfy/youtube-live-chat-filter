@@ -1,5 +1,11 @@
 <template>
-  <v-dialog v-model="value" class="rule-dialog" max-width="480" persistent>
+  <v-dialog
+    :value="value"
+    class="rule-dialog"
+    max-width="480"
+    persistent
+    @input="$emit('input', $event.target.value)"
+  >
     <v-form ref="formRef" v-model="state.valid" lazy-validation>
       <v-card>
         <v-card-title primary-title>
@@ -92,6 +98,12 @@ const conditions = [
   { text: 'Contains', value: 'contains' },
   { text: 'Equals', value: 'equals' },
   { text: 'Matches Regular Expression', value: 'matches_regular_expression' },
+  { text: 'Does Not Contain', value: 'does_not_contain' },
+  { text: 'Does Not Equal', value: 'does_not_equal' },
+  {
+    text: 'Does Not Match Regular Expression',
+    value: 'does_not_match_regular_expression',
+  },
 ]
 const actions = [
   { text: 'Mask Message', value: 'mask_message' },
@@ -141,14 +153,14 @@ export default defineComponent({
     const formRef = ref<typeof VForm>()
 
     const handleClickCancel = () => {
-      context.emit('click:cancel')
+      context.emit('click-cancel')
     }
     const handleClickSave = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (!(formRef.value as any).validate()) {
         return
       }
-      context.emit('click:save', { ...state.form })
+      context.emit('click-save', { ...state.form })
     }
     const handleClickConfirm = () => {
       state.dialog = true
@@ -158,7 +170,7 @@ export default defineComponent({
     }
     const handleClickSubmit = () => {
       state.dialog = false
-      context.emit('click:delete', { ...state.form })
+      context.emit('click-delete', { ...state.form })
     }
 
     watch(

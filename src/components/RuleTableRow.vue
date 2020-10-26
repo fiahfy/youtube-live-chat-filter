@@ -63,6 +63,9 @@ export default defineComponent({
         contains: 'Contains',
         equals: 'Equals',
         matches_regular_expression: 'Matches Regular Expression',
+        does_not_contain: 'Does Not Contain',
+        does_not_equal: 'Does Not Equal',
+        does_not_match_regular_expression: 'Does Not Match Regular Expression',
       }[props.item.condition]
     })
     const actionIcon = computed(() => {

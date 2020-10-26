@@ -108,17 +108,22 @@ const getMatchedRule = (author?: string, message?: string) => {
     const matched = (() => {
       switch (condition) {
         case 'contains':
+        case 'does_not_contain':
           return text.includes(value)
         case 'equals':
+        case 'does_not_equal':
           return text === value
-        case 'matches_regular_expression': {
+        case 'matches_regular_expression':
+        case 'does_not_match_regular_expression': {
           const reg = new RegExp(value)
           return reg.test(text)
         }
       }
     })()
 
-    return matched ? rule : carry
+    const negative = condition.includes('does_not_')
+
+    return (!negative && matched) || (negative && !matched) ? rule : carry
   }, undefined)
 }
 

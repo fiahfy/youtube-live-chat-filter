@@ -10,7 +10,7 @@
     hide-default-footer
     show-select
   >
-    <template v-slot:top>
+    <template #top>
       <rule-table-toolbar
         :selected.sync="state.selected"
         :query.sync="state.search"
@@ -19,12 +19,12 @@
         v-model="state.dialog"
         editing
         :form="state.form"
-        @click:cancel="handleClickCancel"
-        @click:save="handleClickSave"
-        @click:delete="handleClickDelete"
+        @click-cancel="handleClickCancel"
+        @click-save="handleClickSave"
+        @click-delete="handleClickDelete"
       />
     </template>
-    <template v-slot:item="props">
+    <template #item="props">
       <rule-table-row
         v-bind="props"
         @click.native="() => handleClickRow(props.item)"

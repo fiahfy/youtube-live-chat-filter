@@ -22,8 +22,8 @@
     </v-btn>
     <rule-dialog
       v-model="state.dialog"
-      @click:cancel="handleClickCancel"
-      @click:save="handleClickSave"
+      @click-cancel="handleClickCancel"
+      @click-save="handleClickSave"
     />
     <v-dialog v-model="state.confirmDialog" max-width="360">
       <v-card>
