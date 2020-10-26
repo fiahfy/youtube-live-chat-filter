@@ -55,7 +55,7 @@
     "build": "webpack",
     "dev": "webpack -w --config webpack.config.dev.js",
     "lint": "eslint -f codeframe --ext .js,.ts,.vue --ignore-path .gitignore .",
-    "package": "npm run build -- -p && mkdir -p dist && zip -r dist/archive.zip app",
+    "package": "npm run build -- --mode=production && mkdir -p dist && zip -r dist/archive.zip app",
     "test": "npm run lint"
   }
 }
