@@ -242,25 +242,43 @@ const updateItems = () => {
 }
 
 const observe = async () => {
-  const wrapper = await querySelectorAsync(
-    '#items.yt-live-chat-item-list-renderer'
-  )
-  if (!wrapper) {
+  let messageObserver: MutationObserver | undefined = undefined
+
+  const observeMessages = async () => {
+    messageObserver?.disconnect()
+
+    const el = await querySelectorAsync(
+      '#items.yt-live-chat-item-list-renderer'
+    )
+    if (!el) {
+      return
+    }
+
+    messageObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        const nodes = Array.from(mutation.addedNodes)
+        nodes.forEach((node: Node) => {
+          if (node instanceof HTMLElement) {
+            updateItem(node)
+          }
+        })
+      })
+    })
+    messageObserver.observe(el, { childList: true })
+  }
+
+  await observeMessages()
+
+  const el = await querySelectorAsync('#item-list.yt-live-chat-renderer')
+  if (!el) {
     return
   }
 
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      const nodes = Array.from(mutation.addedNodes)
-      nodes.forEach((node: Node) => {
-        if (node instanceof HTMLElement) {
-          updateItem(node)
-        }
-      })
-    })
+  const observer = new MutationObserver(async () => {
+    updateItems()
+    await observeMessages()
   })
-
-  observer.observe(wrapper, { childList: true })
+  observer.observe(el, { childList: true })
 }
 
 browser.runtime.onMessage.addListener((message) => {
