@@ -56,8 +56,8 @@ const updateMenuButton = () => {
   }
 }
 
-const addMenuButton = () => {
-  const header = document.querySelector(
+const addMenuButton = async () => {
+  const header = await querySelectorAsync(
     '#chat-messages > yt-live-chat-header-renderer'
   )
   const refIconButton = header && header.querySelector('yt-icon-button')
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   enabled = data.enabled
   settings = data.settings
   updateRoot()
-  addMenuButton()
   updateItems()
+  await addMenuButton()
   await observe()
 })
