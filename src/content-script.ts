@@ -187,7 +187,7 @@ const updateItem = (element: HTMLElement) => {
     const htmlMessage =
       element.querySelector('#message')?.innerHTML ?? undefined
     const message = htmlMessage
-      ?.replace(/<img [^>]*alt="([^"]+)" [^>]*>/g, (_match, p1) => p1)
+      ?.replace(/<img [^>]*alt="([^"]+)" [^>]*>/g, (_match, p1) => `:${p1}:`)
       .replace(/<[^>]*>/g, '')
 
     const rule = getMatchedRule(author, message)

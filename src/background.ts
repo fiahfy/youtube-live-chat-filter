@@ -69,6 +69,18 @@ const settingsChanged = async () => {
   }
 }
 
+browser.runtime.onInstalled.addListener(async (details) => {
+  if (details.reason !== 'update') {
+    return
+  }
+  // move settings from sync to local for migration
+  const { vuex } = await browser.storage.sync.get('vuex')
+  if (vuex) {
+    await browser.storage.local.set({ vuex })
+    await browser.storage.sync.remove('vuex')
+  }
+})
+
 browser.runtime.onMessage.addListener(async (message, sender) => {
   const { id, data } = message
   const { tab } = sender

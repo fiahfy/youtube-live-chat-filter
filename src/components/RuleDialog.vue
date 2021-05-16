@@ -29,8 +29,9 @@
           <v-text-field
             v-model="state.form.value"
             :rules="valueRules"
-            label="Value"
             :placeholder="placeholder"
+            hint="To match an Emoji, specify `:emoji_code:`"
+            label="Value"
             required
             autofocus
           />
