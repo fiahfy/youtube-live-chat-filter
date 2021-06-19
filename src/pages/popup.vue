@@ -23,7 +23,7 @@ export default defineComponent({
     })
 
     onMounted(() => {
-      setTimeout(() => {
+      window.setTimeout(() => {
         state.expander = false
       })
     })

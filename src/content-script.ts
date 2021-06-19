@@ -26,7 +26,7 @@ const querySelectorAsync = (
 ): Promise<Element | null> => {
   return new Promise((resolve) => {
     const expireTime = Date.now() + timeout
-    const timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       const e = document.querySelector(selector)
       if (e || Date.now() > expireTime) {
         clearInterval(timer)

@@ -30,8 +30,9 @@ const vuexPersist = new VuexPersistence({
   },
 })
 
-const createStore = (subscribe = true) =>
-  new Vuex.Store({
+const createStore = () =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  new Vuex.Store<any>({
     state: {},
     modules: {
       settings,
@@ -39,10 +40,9 @@ const createStore = (subscribe = true) =>
     plugins: [
       vuexPersist.plugin,
       (store) => {
-        subscribe &&
-          store.subscribe(() => {
-            browser.runtime.sendMessage({ id: 'settingsChanged' })
-          })
+        store.subscribe(() => {
+          browser.runtime.sendMessage({ id: 'settingsChanged' })
+        })
       },
     ],
   })
@@ -50,11 +50,11 @@ const createStore = (subscribe = true) =>
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function readyStore(): Promise<Store<any>> {
   return new Promise((resolve) => {
-    const store = createStore(false)
+    const store = createStore()
     // wait for async storage restore
     // @see https://github.com/championswimmer/vuex-persist/issues/15
     const timeout = Date.now() + 1000
-    const timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       if (store.state.__storageReady || Date.now() > timeout) {
         clearInterval(timer)
         resolve(store)
