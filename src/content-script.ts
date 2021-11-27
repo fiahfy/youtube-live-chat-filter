@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts'
+import browser from 'webextension-polyfill'
 import cancel from '~/assets/cancel.svg'
 import error from '~/assets/error.svg'
 import filterList from '~/assets/filter-list.svg'
