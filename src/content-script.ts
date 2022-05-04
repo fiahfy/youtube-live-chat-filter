@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import cancel from '~/assets/cancel.svg'
 import error from '~/assets/error.svg'
 import filterList from '~/assets/filter-list.svg'
@@ -23,8 +22,8 @@ const querySelectorAsync = (
   selector: string,
   interval = 100,
   timeout = 1000
-): Promise<Element | null> => {
-  return new Promise((resolve) => {
+) => {
+  return new Promise<Element | null>((resolve) => {
     const expireTime = Date.now() + timeout
     const timer = window.setInterval(() => {
       const e = document.querySelector(selector)
@@ -76,8 +75,8 @@ const addMenuButton = async () => {
     'yt-live-chat-header-renderer'
   )
   iconButton.title = 'Filter Messages'
-  iconButton.onclick = () => {
-    browser.runtime.sendMessage({ id: 'menuButtonClicked' })
+  iconButton.onclick = async () => {
+    await chrome.runtime.sendMessage({ type: 'menu-button-clicked' })
   }
   iconButton.append(icon)
 
@@ -215,9 +214,9 @@ const updateItem = (element: HTMLElement) => {
         className: ClassName.cancelIcon,
         title: 'Add this author to filters',
         html: cancel,
-        onclick: () => {
-          browser.runtime.sendMessage({
-            id: 'addButtonClicked',
+        onclick: async () => {
+          await chrome.runtime.sendMessage({
+            type: 'add-button-clicked',
             data: { author },
           })
         },
@@ -281,24 +280,24 @@ const observe = async () => {
   observer.observe(el, { childList: true })
 }
 
-browser.runtime.onMessage.addListener((message) => {
-  const { id, data } = message
-  switch (id) {
-    case 'enabledChanged':
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  const { type, data } = message
+  switch (type) {
+    case 'enabled-changed':
       enabled = data.enabled
       updateRoot()
       updateMenuButton()
       updateItems()
-      break
-    case 'settingsChanged':
+      return sendResponse()
+    case 'settings-changed':
       settings = data.settings
       updateItems()
-      break
+      return sendResponse()
   }
 })
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const data = await browser.runtime.sendMessage({ id: 'contentLoaded' })
+  const data = await chrome.runtime.sendMessage({ type: 'content-loaded' })
   enabled = data.enabled
   settings = data.settings
   updateRoot()

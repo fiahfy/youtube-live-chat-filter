@@ -7,13 +7,13 @@ export default class SettingsModule extends VuexModule {
   rules: Rule[] = []
 
   get getRule() {
-    return ({ id }: { id: string }): Rule | undefined => {
+    return ({ id }: { id: string }) => {
       return this.rules.find((rule) => rule.id === id)
     }
   }
 
   @Mutation
-  addRule(params: Partial<Rule>): void {
+  addRule(params: Partial<Rule>) {
     const id = nanoid()
 
     this.rules = [
@@ -30,15 +30,15 @@ export default class SettingsModule extends VuexModule {
     ]
   }
   @Mutation
-  removeRule({ id }: { id: string }): void {
+  removeRule({ id }: { id: string }) {
     this.rules = this.rules.filter((item) => item.id !== id)
   }
   @Mutation
-  removeRules({ ids }: { ids: string[] }): void {
+  removeRules({ ids }: { ids: string[] }) {
     this.rules = this.rules.filter((item) => !ids.includes(item.id))
   }
   @Mutation
-  setRule({ id, ...params }: Partial<Rule>): void {
+  setRule({ id, ...params }: Partial<Rule>) {
     this.rules = this.rules.map((item) => {
       if (item.id !== id) {
         return item

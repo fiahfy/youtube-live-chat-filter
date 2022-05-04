@@ -1,20 +1,18 @@
-import browser from 'webextension-polyfill'
 import { readyStore } from '~/store'
 import iconOff from '~/assets/icon-off.png'
 import iconOn from '~/assets/icon-on.png'
-import { Settings } from './models'
 
 let initialEnabled = true
 let enabledStates: { [tabId: number]: boolean } = {}
 
-const getSettings = async (): Promise<Settings> => {
+const getSettings = async () => {
   const store = await readyStore()
   return JSON.parse(JSON.stringify(store.state.settings))
 }
 
 const setIcon = async (tabId: number, enabled: boolean) => {
   const path = enabled ? iconOn : iconOff
-  await browser.pageAction.setIcon({ tabId, path })
+  await chrome.action.setIcon({ tabId, path })
 }
 
 const contentLoaded = async (tabId: number) => {
@@ -22,7 +20,6 @@ const contentLoaded = async (tabId: number) => {
   enabledStates = { ...enabledStates, [tabId]: enabled }
 
   await setIcon(tabId, enabled)
-  await browser.pageAction.show(tabId)
 
   const settings = await getSettings()
 
@@ -39,8 +36,8 @@ const menuButtonClicked = async (tabId: number) => {
 
   await setIcon(tabId, enabled)
 
-  await browser.tabs.sendMessage(tabId, {
-    id: 'enabledChanged',
+  await chrome.tabs.sendMessage(tabId, {
+    type: 'enabled-changed',
     data: { enabled },
   })
 }
@@ -57,44 +54,51 @@ const addButtonClicked = async ({ author }: { author: string }) => {
 
 const settingsChanged = async () => {
   const settings = await getSettings()
-  const tabs = await browser.tabs.query({})
+  const tabs = await chrome.tabs.query({})
   for (const tab of tabs) {
     try {
       tab.id &&
-        (await browser.tabs.sendMessage(tab.id, {
-          id: 'settingsChanged',
+        chrome.tabs.sendMessage(tab.id, {
+          type: 'settings-changed',
           data: { settings },
-        }))
+        })
     } catch (e) {} // eslint-disable-line no-empty
   }
 }
 
-browser.runtime.onInstalled.addListener(async (details) => {
+chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason !== 'update') {
     return
   }
   // move settings from sync to local for migration
-  const { vuex } = await browser.storage.sync.get('vuex')
+  const { vuex } = await chrome.storage.sync.get('vuex')
   if (vuex) {
-    await browser.storage.local.set({ vuex })
-    await browser.storage.sync.remove('vuex')
+    await chrome.storage.local.set({ vuex })
+    await chrome.storage.sync.remove('vuex')
   }
 })
 
-browser.runtime.onMessage.addListener(async (message, sender) => {
-  const { id, data } = message
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  const { type, data } = message
   const { tab } = sender
-  switch (id) {
-    case 'contentLoaded':
-      return tab?.id && (await contentLoaded(tab.id))
-    case 'menuButtonClicked':
-      tab?.id && (await menuButtonClicked(tab.id))
-      break
-    case 'addButtonClicked':
-      await addButtonClicked(data)
-      break
-    case 'settingsChanged':
-      await settingsChanged()
-      break
+  switch (type) {
+    case 'content-loaded':
+      if (tab?.id) {
+        contentLoaded(tab.id).then((data) => sendResponse(data))
+        return true
+      }
+      return
+    case 'menu-button-clicked':
+      if (tab?.id) {
+        menuButtonClicked(tab.id).then((data) => sendResponse(data))
+        return true
+      }
+      return
+    case 'add-button-clicked':
+      addButtonClicked(data).then(() => sendResponse())
+      return true
+    case 'settings-changed':
+      settingsChanged().then(() => sendResponse())
+      return true
   }
 })
