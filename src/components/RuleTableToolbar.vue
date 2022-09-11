@@ -1,3 +1,71 @@
+<script setup lang="ts">
+import { reactive } from 'vue'
+import RuleDialog from '~/components/RuleDialog.vue'
+import { Rule } from '~/models'
+import { useStore } from '~/store'
+
+const store = useStore()
+
+type Props = {
+  selected: Rule[]
+  query: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  selected: () => [],
+  query: '',
+})
+
+type Emits = {
+  (e: 'update:query', value: string): void
+  (e: 'update:selected', value: Rule[]): void
+}
+
+const emit = defineEmits<Emits>()
+
+const state = reactive<{
+  dialog: boolean
+  confirmDialog: boolean
+}>({
+  dialog: false,
+  confirmDialog: false,
+})
+
+const handleInputQuery = (value: string) => {
+  emit('update:query', value)
+  emit('update:selected', [])
+}
+
+const handleClickDelete = () => {
+  state.confirmDialog = true
+}
+
+const handleClickCancelConfirm = () => {
+  state.confirmDialog = false
+}
+
+const handleClickSubmit = () => {
+  state.confirmDialog = false
+  store.commit('settings/removeRules', {
+    ids: props.selected.map((item) => item.id),
+  })
+  emit('update:selected', [])
+}
+
+const handleClickNew = () => {
+  state.dialog = true
+}
+
+const handleClickCancel = () => {
+  state.dialog = false
+}
+
+const handleClickSave = (item: Rule) => {
+  state.dialog = false
+  store.commit('settings/addRule', item)
+}
+</script>
+
 <template>
   <v-toolbar class="rule-table-toolbar" flat color="transparent">
     <v-text-field
@@ -20,7 +88,7 @@
     <v-btn v-else color="primary" depressed @click="handleClickNew">
       New Rule
     </v-btn>
-    <rule-dialog
+    <RuleDialog
       v-model="state.dialog"
       @click-cancel="handleClickCancel"
       @click-save="handleClickSave"
@@ -39,77 +107,3 @@
     </v-dialog>
   </v-toolbar>
 </template>
-
-<script lang="ts">
-import { defineComponent, reactive, SetupContext } from '@vue/composition-api'
-import RuleDialog from '~/components/RuleDialog.vue'
-import { Rule } from '~/models'
-import { settingsStore } from '~/store'
-
-type Props = {
-  selected: Rule[]
-  query: string
-}
-
-export default defineComponent({
-  components: {
-    RuleDialog,
-  },
-  props: {
-    selected: {
-      type: Array,
-      default: () => [],
-    },
-    query: {
-      type: String,
-      default: '',
-    },
-  },
-  setup(props: Props, context: SetupContext) {
-    const state = reactive<{
-      dialog: boolean
-      confirmDialog: boolean
-    }>({
-      dialog: false,
-      confirmDialog: false,
-    })
-
-    const handleInputQuery = (value: string) => {
-      context.emit('update:query', value)
-      context.emit('update:selected', [])
-    }
-    const handleClickDelete = () => {
-      state.confirmDialog = true
-    }
-    const handleClickCancelConfirm = () => {
-      state.confirmDialog = false
-    }
-    const handleClickSubmit = () => {
-      state.confirmDialog = false
-      settingsStore.removeRules({ ids: props.selected.map((item) => item.id) })
-      context.emit('update:selected', [])
-    }
-    const handleClickNew = () => {
-      state.dialog = true
-    }
-    const handleClickCancel = () => {
-      state.dialog = false
-    }
-    const handleClickSave = (item: Rule) => {
-      state.dialog = false
-      settingsStore.addRule(item)
-    }
-
-    return {
-      state,
-      handleInputQuery,
-      handleClickDelete,
-      handleClickCancelConfirm,
-      handleClickSubmit,
-      handleClickNew,
-      handleClickCancel,
-      handleClickSave,
-    }
-  },
-})
-</script>

@@ -1,3 +1,42 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { Rule } from '~/models'
+
+type Props = {
+  item: Rule
+  isSelected: boolean
+  select: (v: boolean) => void
+}
+
+const props = defineProps<Props>()
+
+const classes = computed(() => {
+  return props.isSelected ? 'v-data-table__selected' : ''
+})
+
+const condition = computed(() => {
+  return {
+    contains: 'Contains',
+    equals: 'Equals',
+    matches_regular_expression: 'Matches Regular Expression',
+    does_not_contain: 'Does Not Contain',
+    does_not_equal: 'Does Not Equal',
+    does_not_match_regular_expression: 'Does Not Match Regular Expression',
+  }[props.item.condition]
+})
+
+const actionIcon = computed(() => {
+  return {
+    mask_message: 'mdi-marker',
+    hide_completely: 'mdi-eye-off',
+  }[props.item.action]
+})
+
+const handleSelect = (value: boolean) => {
+  props.select(value)
+}
+</script>
+
 <template>
   <tr class="rule-table-row" :class="classes">
     <td @click.stop>
@@ -23,71 +62,11 @@
         outlined
         x-small
         style="pointer-events: none"
-        v-text="item.active ? 'active' : 'inactive'"
-      />
+        >{{ item.active ? 'active' : 'inactive' }}</v-chip
+      >
     </td>
   </tr>
 </template>
-
-<script lang="ts">
-import { defineComponent, computed } from '@vue/composition-api'
-import { Rule } from '~/models'
-
-type Props = {
-  item: Rule
-  isSelected: boolean
-  select: (v: boolean) => void
-}
-
-export default defineComponent({
-  props: {
-    item: {
-      type: Object,
-      required: true,
-    },
-    isSelected: {
-      type: Boolean,
-      required: true,
-    },
-    select: {
-      type: Function,
-      required: true,
-    },
-  },
-  setup(props: Props) {
-    const classes = computed(() => {
-      return props.isSelected ? 'v-data-table__selected' : ''
-    })
-    const condition = computed(() => {
-      return {
-        contains: 'Contains',
-        equals: 'Equals',
-        matches_regular_expression: 'Matches Regular Expression',
-        does_not_contain: 'Does Not Contain',
-        does_not_equal: 'Does Not Equal',
-        does_not_match_regular_expression: 'Does Not Match Regular Expression',
-      }[props.item.condition]
-    })
-    const actionIcon = computed(() => {
-      return {
-        mask_message: 'mdi-marker',
-        hide_completely: 'mdi-eye-off',
-      }[props.item.action]
-    })
-
-    const handleSelect = (value: boolean) => {
-      props.select(value)
-    }
-
-    return {
-      classes,
-      condition,
-      actionIcon,
-      handleSelect,
-    }
-  },
-})
-</script>
 
 <style lang="scss" scoped>
 .value {

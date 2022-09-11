@@ -1,39 +1,28 @@
+<script setup lang="ts">
+import { reactive, onMounted } from 'vue'
+import RuleTable from '~/components/RuleTable.vue'
+
+const state = reactive({
+  expander: true,
+})
+
+onMounted(() => {
+  window.setTimeout(() => {
+    state.expander = false
+  })
+})
+</script>
+
 <template>
   <v-app>
     <v-main class="fill-height">
       <v-container fluid px-0>
-        <rule-table />
+        <RuleTable />
         <div v-if="state.expander" class="expander" />
       </v-container>
     </v-main>
   </v-app>
 </template>
-
-<script lang="ts">
-import { defineComponent, reactive, onMounted } from '@vue/composition-api'
-import RuleTable from '~/components/RuleTable.vue'
-
-export default defineComponent({
-  components: {
-    RuleTable,
-  },
-  setup() {
-    const state = reactive({
-      expander: true,
-    })
-
-    onMounted(() => {
-      window.setTimeout(() => {
-        state.expander = false
-      })
-    })
-
-    return {
-      state,
-    }
-  },
-})
-</script>
 
 <style lang="scss">
 html {

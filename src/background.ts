@@ -1,3 +1,4 @@
+import { Settings } from '~/models'
 import { readyStore } from '~/store'
 import iconOff from '~/assets/icon-off.png'
 import iconOn from '~/assets/icon-on.png'
@@ -44,16 +45,16 @@ const menuButtonClicked = async (tabId: number) => {
 
 const addButtonClicked = async ({ author }: { author: string }) => {
   const store = await readyStore()
-  store.commit('addRule', {
+  store.commit('settings/addRule', {
     field: 'author',
     condition: 'equals',
     value: author,
   })
-  await settingsChanged()
+  const settings = await getSettings()
+  await settingsChanged(settings)
 }
 
-const settingsChanged = async () => {
-  const settings = await getSettings()
+const settingsChanged = async (settings: Settings) => {
   const tabs = await chrome.tabs.query({})
   for (const tab of tabs) {
     try {
@@ -98,7 +99,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       addButtonClicked(data).then(() => sendResponse())
       return true
     case 'settings-changed':
-      settingsChanged().then(() => sendResponse())
+      settingsChanged(data.settings).then(() => sendResponse())
       return true
   }
 })

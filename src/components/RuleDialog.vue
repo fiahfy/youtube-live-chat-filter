@@ -1,10 +1,119 @@
+<script setup lang="ts">
+import { computed, ref, reactive, watch } from 'vue'
+import { VForm } from 'vuetify/components'
+import { Rule } from '~/models'
+
+const fields = [
+  { title: 'Author', value: 'author' },
+  { title: 'Message', value: 'message' },
+]
+
+const conditions = [
+  { title: 'Contains', value: 'contains' },
+  { title: 'Equals', value: 'equals' },
+  { title: 'Matches Regular Expression', value: 'matches_regular_expression' },
+  { title: 'Does Not Contain', value: 'does_not_contain' },
+  { title: 'Does Not Equal', value: 'does_not_equal' },
+  {
+    title: 'Does Not Match Regular Expression',
+    value: 'does_not_match_regular_expression',
+  },
+]
+
+const actions = [
+  { title: 'Mask Message', value: 'mask_message' },
+  { title: 'Hide Completely', value: 'hide_completely' },
+]
+
+const valueRules = [(v: string) => !!v || 'Value is required']
+
+type Props = {
+  modelValue: boolean
+  editing?: boolean
+  form?: Partial<Rule>
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  editing: false,
+  form: () => ({}),
+})
+
+type Emits = {
+  (e: 'click-cancel'): void
+  (e: 'click-save', value: Partial<Rule>): void
+  (e: 'click-delete', value: Partial<Rule>): void
+}
+
+const emit = defineEmits<Emits>()
+
+const state = reactive<{
+  dialog: boolean
+  valid: boolean
+  form: Partial<Rule>
+}>({
+  dialog: false,
+  valid: false,
+  form: {},
+})
+
+const title = computed(() => {
+  return props.editing ? 'Edit Rule' : 'New Rule'
+})
+
+const placeholder = computed(() =>
+  state.form.condition === 'matches_regular_expression' ? 'Pattern' : 'Text'
+)
+
+const formRef = ref<typeof VForm>()
+
+const handleClickCancel = () => {
+  emit('click-cancel')
+}
+
+const handleClickSave = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (!(formRef.value as any).validate()) {
+    return
+  }
+  emit('click-save', { ...state.form })
+}
+
+const handleClickConfirm = () => {
+  state.dialog = true
+}
+
+const handleClickCancelConfirm = () => {
+  state.dialog = false
+}
+
+const handleClickSubmit = () => {
+  state.dialog = false
+  emit('click-delete', { ...state.form })
+}
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value) {
+      state.form = {
+        active: true,
+        field: 'message',
+        condition: 'contains',
+        action: 'hide_completely',
+        ...props.form,
+      }
+    }
+  }
+)
+</script>
+
 <template>
   <v-dialog
-    :value="value"
+    :model-value="modelValue"
     class="rule-dialog"
     max-width="480"
     persistent
-    @input="$emit('input', $event.target.value)"
+    @input="$emit('update:modelValue', $event.target.value)"
   >
     <v-form ref="formRef" v-model="state.valid" lazy-validation>
       <v-card>
@@ -78,132 +187,3 @@
     </v-dialog>
   </v-dialog>
 </template>
-
-<script lang="ts">
-import {
-  defineComponent,
-  computed,
-  ref,
-  reactive,
-  watch,
-  SetupContext,
-} from '@vue/composition-api'
-import { VForm } from 'vuetify/lib'
-import { Rule } from '~/models'
-
-const fields = [
-  { text: 'Author', value: 'author' },
-  { text: 'Message', value: 'message' },
-]
-const conditions = [
-  { text: 'Contains', value: 'contains' },
-  { text: 'Equals', value: 'equals' },
-  { text: 'Matches Regular Expression', value: 'matches_regular_expression' },
-  { text: 'Does Not Contain', value: 'does_not_contain' },
-  { text: 'Does Not Equal', value: 'does_not_equal' },
-  {
-    text: 'Does Not Match Regular Expression',
-    value: 'does_not_match_regular_expression',
-  },
-]
-const actions = [
-  { text: 'Mask Message', value: 'mask_message' },
-  { text: 'Hide Completely', value: 'hide_completely' },
-]
-const valueRules = [(v: string) => !!v || 'Value is required']
-
-type Props = {
-  value: boolean
-  editing: boolean
-  form: Partial<Rule>
-}
-
-export default defineComponent({
-  props: {
-    value: {
-      type: Boolean,
-      required: true,
-    },
-    editing: {
-      type: Boolean,
-      default: false,
-    },
-    form: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
-  setup(props: Props, context: SetupContext) {
-    const state = reactive<{
-      dialog: boolean
-      valid: boolean
-      form: Partial<Rule>
-    }>({
-      dialog: false,
-      valid: false,
-      form: {},
-    })
-
-    const title = computed(() => {
-      return props.editing ? 'Edit Rule' : 'New Rule'
-    })
-    const placeholder = computed(() =>
-      state.form.condition === 'matches_regular_expression' ? 'Pattern' : 'Text'
-    )
-
-    const formRef = ref<typeof VForm>()
-
-    const handleClickCancel = () => {
-      context.emit('click-cancel')
-    }
-    const handleClickSave = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (!(formRef.value as any).validate()) {
-        return
-      }
-      context.emit('click-save', { ...state.form })
-    }
-    const handleClickConfirm = () => {
-      state.dialog = true
-    }
-    const handleClickCancelConfirm = () => {
-      state.dialog = false
-    }
-    const handleClickSubmit = () => {
-      state.dialog = false
-      context.emit('click-delete', { ...state.form })
-    }
-
-    watch(
-      () => props.value,
-      (value) => {
-        if (value) {
-          state.form = {
-            active: true,
-            field: 'message',
-            condition: 'contains',
-            action: 'hide_completely',
-            ...props.form,
-          }
-        }
-      }
-    )
-
-    return {
-      fields,
-      conditions,
-      actions,
-      valueRules,
-      state,
-      title,
-      placeholder,
-      formRef,
-      handleClickCancel,
-      handleClickSave,
-      handleClickConfirm,
-      handleClickCancelConfirm,
-      handleClickSubmit,
-    }
-  },
-})
-</script>
