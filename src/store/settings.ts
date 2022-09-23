@@ -1,52 +1,77 @@
-import { nanoid } from 'nanoid'
-import { Module, VuexModule, Mutation } from 'vuex-module-decorators'
-import { Rule } from '~/models'
+import {
+  PayloadAction,
+  createSelector,
+  createSlice,
+  nanoid,
+} from '@reduxjs/toolkit'
+import { Rule, Settings } from '~/models'
+import { AppState } from '~/store'
 
-@Module({ name: 'settings' })
-export default class SettingsModule extends VuexModule {
-  rules: Rule[] = []
+type State = Settings
 
-  get getRule() {
-    return ({ id }: { id: string }) => {
-      return this.rules.find((rule) => rule.id === id)
-    }
-  }
+export const initialState: State = {
+  rules: [],
+}
 
-  @Mutation
-  addRule(params: Partial<Rule>) {
-    const id = nanoid()
-
-    this.rules = [
-      ...this.rules,
-      {
+export const settingsSlice = createSlice({
+  name: 'settings',
+  initialState,
+  reducers: {
+    addRule(state, action: PayloadAction<Partial<Rule>>) {
+      const rule = {
         active: true,
         field: 'message',
         condition: 'contains',
         value: '',
         action: 'hide_completely',
-        ...params,
-        id,
-      },
-    ]
-  }
-  @Mutation
-  removeRule({ id }: { id: string }) {
-    this.rules = this.rules.filter((item) => item.id !== id)
-  }
-  @Mutation
-  removeRules({ ids }: { ids: string[] }) {
-    this.rules = this.rules.filter((item) => !ids.includes(item.id))
-  }
-  @Mutation
-  setRule({ id, ...params }: Partial<Rule>) {
-    this.rules = this.rules.map((item) => {
-      if (item.id !== id) {
-        return item
-      }
+        ...action.payload,
+        id: nanoid(),
+      } as const
+      return { ...state, rules: [...state.rules, rule] }
+    },
+    removeRule(state, action: PayloadAction<string>) {
       return {
-        ...item,
-        ...params,
+        ...state,
+        rules: state.rules.filter((item) => item.id !== action.payload),
       }
-    })
-  }
-}
+    },
+    removeRules(state, action: PayloadAction<string[]>) {
+      return {
+        ...state,
+        rules: state.rules.filter((item) => !action.payload.includes(item.id)),
+      }
+    },
+    setRule(state, action: PayloadAction<Partial<Rule>>) {
+      const { id, ...params } = action.payload
+      return {
+        ...state,
+        rules: state.rules.map((item) => {
+          if (item.id !== id) {
+            return item
+          }
+          return {
+            ...item,
+            ...params,
+          }
+        }),
+      }
+    },
+  },
+})
+
+export const { addRule, removeRule, removeRules, setRule } =
+  settingsSlice.actions
+
+export default settingsSlice.reducer
+
+export const selectSettings = (state: AppState) => state.settings
+
+export const selectRules = createSelector(
+  selectSettings,
+  (settings) => settings.rules
+)
+
+export const selectGetRule = createSelector(
+  selectSettings,
+  (settings) => (id: string) => settings.rules.find((rule) => rule.id === id)
+)

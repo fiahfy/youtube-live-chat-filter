@@ -1,7 +1,5 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { VueLoaderPlugin } = require('vue-loader')
-const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 
 module.exports = {
   mode: 'production',
@@ -20,31 +18,19 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         loader: 'ts-loader',
-        options: {
-          appendTsSuffixTo: [/\.vue$/],
-        },
-      },
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader',
       },
       {
         test: /\.s(c|a)ss$/,
-        use: [
-          'vue-style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              esModule: false,
-            },
-          },
-          'sass-loader',
-        ],
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
-        test: /\.(css|jpg|gif|png|woff|woff2|eot|ttf)$/,
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.png$/,
         loader: 'file-loader',
         options: {
           name: 'assets/[name].[ext]',
@@ -81,15 +67,12 @@ module.exports = {
       filename: './popup.html',
       chunks: ['popup'],
     }),
-    new VueLoaderPlugin(),
-    new VuetifyLoaderPlugin(),
   ],
   resolve: {
-    extensions: ['.js', '.ts', '.vue'],
+    extensions: ['.js', '.ts', '.tsx'],
     alias: {
       '~': `${__dirname}/src/`,
       '~~': `${__dirname}/`,
-      vue$: 'vue/dist/vue.runtime.js',
     },
   },
 }

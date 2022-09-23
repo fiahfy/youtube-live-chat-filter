@@ -1,4 +1,6 @@
-import { readyStore } from '~/store'
+import { Settings } from '~/models'
+import { persistConfig } from '~/store'
+import { initialState as initialSettings } from '~/store/settings'
 import iconOff from '~/assets/icon-off.png'
 import iconOn from '~/assets/icon-on.png'
 
@@ -6,8 +8,14 @@ let initialEnabled = true
 let enabledStates: { [tabId: number]: boolean } = {}
 
 const getSettings = async () => {
-  const store = await readyStore()
-  return JSON.parse(JSON.stringify(store.state.settings))
+  try {
+    const key = `persist:${persistConfig.key}`
+    const json = (await chrome.storage.local.get(key))[key]
+    const rootState = JSON.parse(json)
+    return JSON.parse(rootState.settings)
+  } catch (e) {
+    return initialSettings
+  }
 }
 
 const setIcon = async (tabId: number, enabled: boolean) => {
@@ -43,18 +51,19 @@ const menuButtonClicked = async (tabId: number) => {
 }
 
 const addButtonClicked = async ({ author }: { author: string }) => {
-  const store = await readyStore()
-  store.commit('addRule', {
-    field: 'author',
-    condition: 'equals',
-    value: author,
-  })
-  await settingsChanged()
+  // const store = await readyStore()
+  // store.commit('addRule', {
+  //   field: 'author',
+  //   condition: 'equals',
+  //   value: author,
+  // })
+  // await settingsChanged()
 }
 
-const settingsChanged = async () => {
-  const settings = await getSettings()
-  const tabs = await chrome.tabs.query({})
+const settingsChanged = async (settings: Settings) => {
+  const tabs = await chrome.tabs.query({
+    url: 'https://www.youtube.com/*',
+  })
   for (const tab of tabs) {
     try {
       tab.id &&
@@ -98,7 +107,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       addButtonClicked(data).then(() => sendResponse())
       return true
     case 'settings-changed':
-      settingsChanged().then(() => sendResponse())
+      settingsChanged(data.settings).then(() => sendResponse())
       return true
   }
 })
