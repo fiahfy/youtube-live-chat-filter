@@ -13,7 +13,7 @@ module.exports = {
     popup: './popup',
   },
   output: {
-    path: `${__dirname}/app/`,
+    path: `${__dirname}/dist/`,
     filename: '[name].js',
     publicPath: './',
   },

@@ -41,12 +41,11 @@
   "scripts": {
     "build": "webpack",
     "dev": "concurrently npm:watch:*",
-    "lint": "npm run lint:eslint && npm run lint:prettier",
-    "lint:eslint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore .",
-    "lint:prettier": "prettier -c --ignore-path .gitignore .",
-    "package": "npm run build && mkdir -p dist && zip -r dist/extension.zip app",
+    "format": "prettier -c --ignore-path .gitignore .",
+    "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore .",
+    "package": "zip -r extension.zip dist",
     "prepare": "husky install",
-    "test": "npm run lint",
+    "test": "npm run format && npm run lint",
     "watch:dist": "mv3-hot-reload",
     "watch:src": "webpack -w --config webpack.config.dev.js"
   }

@@ -14,14 +14,15 @@ jobs:
         with:
           node-version: 16
       - run: yarn
+      - run: yarn build
       - run: yarn package
       - uses: softprops/action-gh-release@v1
         with:
           draft: true
-          files: dist/extension.zip
+          files: extension.zip
       - uses: mnao305/chrome-extension-upload@v4.0.1
         with:
-          file-path: dist/extension.zip
+          file-path: extension.zip
           extension-id: ${{ vars.EXTENSION_ID }}
           client-id: ${{ secrets.CLIENT_ID }}
           client-secret: ${{ secrets.CLIENT_SECRET }}
