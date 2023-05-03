@@ -1,7 +1,7 @@
 {
   "name": "youtube-live-chat-filter",
   "description": "Chrome Extension for Filtering Chat Messages on YouTube Live.",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "dependencies": {
     "@vue/composition-api": "^1.7.1",
     "nanoid": "^4.0.2",
