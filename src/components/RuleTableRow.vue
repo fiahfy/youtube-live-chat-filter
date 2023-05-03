@@ -23,8 +23,9 @@
         outlined
         x-small
         style="pointer-events: none"
-        v-text="item.active ? 'active' : 'inactive'"
-      />
+      >
+        {{ item.active ? 'active' : 'inactive' }}
+      </v-chip>
     </td>
   </tr>
 </template>

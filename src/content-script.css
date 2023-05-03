@@ -7,10 +7,7 @@ yt-live-chat-header-renderer
   > yt-sort-filter-sub-menu-renderer {
   width: 100%;
 }
-yt-live-chat-header-renderer
-  > .ylcfr-menu-button.ylcfr-active-menu-button
-  > button
-  > yt-icon {
+yt-live-chat-header-renderer > .ylcfr-menu-button.ylcfr-active-menu-button {
   color: #4387f1 !important;
 }
 yt-live-chat-header-renderer > .ylcfr-menu-button > button > yt-icon > svg {
